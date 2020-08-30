@@ -15,8 +15,8 @@
     </head>
     <body>
         <div id="info">Tarea<br/>
-            .-.<br/>
-           -_-<br/>
+            <br/>
+           <br/>
         </div>
     <script src="js/three.min.js"></script>
     <script>
@@ -184,6 +184,7 @@
             cara.position.y=2;
             //body
 			hips = new THREE.Mesh( geometry1, material ); //CUBO
+            hips.applyMatrix( new THREE.Matrix4().makeTranslation(0,3,0) );
             //Pierna Izq
 			leftLeg = new THREE.Mesh( geometry2, material ); 
 			leftLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
@@ -217,7 +218,7 @@
 			
 			
 			//MOVER LA CAMARA 
-		  	camera.position.z = 15;			
+		  	camera.position.z = 20;			
 		  	camera.lookAt( origin );
 			
 			renderer.render( scene, camera );
