@@ -23,10 +23,10 @@
 		var scene, aspect, camera, renderer;
 		var geometry, geometry1, geometry2;
 		var hips, torso, cara;
-		var rightFoot, rightLeg, rightArm, rightHand;
-		var leftFoot, leftLeg, leftArm, leftHand;
+		var rightFoot, rightLeg, rightArm, rightHand, rightH;
+		var leftFoot, leftLeg, leftArm, leftHand, leftH;
 		var startTime = Date.now();
-				
+        
 		var upArrow = false;
 		var downArrow = false;
 		var leftArrow = false;
@@ -153,62 +153,122 @@
             var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
             var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
 			
-			//CREAR LAS GEOMETRÍAS
+            //geometrias
             
-            geometry = new THREE.SphereGeometry( 1, 10, 12 );
+            function geoCubo(x,y,z){
+					var geometria = new THREE.Geometry();
+					for(var i = 0; i <= x; i+=0.1){
+						for(var j = 0; j <= y; j+=0.1){
+                            for(var k = 0; k <= z; k+=0.1){
+							var punto = new THREE.Vector3();
+							punto.x = i;
+							punto.y = j;
+							punto.z=k;
+							geometria.vertices.push(punto);
+                            }
+						}
+					}
+                return geometria;
+            }
             
-			geometry1 = new THREE.BoxGeometry( 1, 2, 1 );
-			for ( var i = 0; i < geometry1.faces.length; i ++ ) {
-				switch(i){
-					case 0: case 1: geometry1.faces[ i ].color = colorRd; break;
-					case 2: case 3: geometry1.faces[ i ].color = colorRd; break;
-					case 4: case 5: geometry1.faces[ i ].color = colorGd; break;
-					case 6: case 7: geometry1.faces[ i ].color = colorGd; break;
-					case 8: case 9: geometry1.faces[ i ].color = colorBd; break;
-					case 10: case 11: geometry1.faces[ i ].color = colorBd; break;
-				}				
-			}
-			geometry2 = new THREE.CylinderGeometry( .5, .5, 1, 30 );
-			for ( var i = 0; i < geometry2.faces.length; i++) { 
-				if( geometry2.faces[i].normal.y != 0) { 
-					geometry2.faces[i].color = colorGd; 
-				} 
-			}
+            function geoCilindro(r,y){
+                var res=5;
+                var geometria = new THREE.Geometry();
+                    for( var i = 0; i < res; i+=0.1){
+						for( var j = 0; j < res; j+=0.1){
+                            for(var k = 0; k < y ; k+=0.1){
+							var punto = new THREE.Vector3();
+							punto.x = (r* (res - i) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res) ;
+							punto.y = k;
+							punto.z = (r * (res - i) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res) ;
+							geometria.vertices.push( punto );
+                            }
+						}
+					}
+                return geometria;
+            }
 			
-			//CREAR LOS MATERIALES
-			var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
+			
+            
+			var geometrycara = new THREE.SphereGeometry( 1, 10, 12 );
+        
+            geometry = geoCubo( 1, .5, .5 );
+            
+            geometry1 = geoCubo( 1.5, 2, 1.5 );
+            
+			geometry2 = geoCilindro( .5, .5);
+
+
+			//CREAR LOS MATERIALES			
+            var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
+            var material1 = new THREE.MeshBasicMaterial( {color: 0x68ffff} );
+            var puntosmaterial = new THREE.PointsMaterial( { color: 0x68ffff, size: 0.1 } );
 			
 			//CREAR LOS OBJETOS
             //cara
-            cara = new THREE.Mesh( geometry, material );
-            cara.position.y=2;
+            cara = new THREE.Mesh( geometrycara, material);
+            cara.applyMatrix( new THREE.Matrix4().makeTranslation(0.7,3,0.7) );
+            //rojo x
             //body
-			hips = new THREE.Mesh( geometry1, material ); //CUBO
-            hips.applyMatrix( new THREE.Matrix4().makeTranslation(0,3,0) );
-            //Pierna Izq
-			leftLeg = new THREE.Mesh( geometry2, material ); 
-			leftLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
-			leftLeg.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-2,0) );
-            //Pierna Der
-            rightLeg = new THREE.Mesh( geometry2, material ); 
-			rightLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
-			rightLeg.applyMatrix( new THREE.Matrix4().makeTranslation(.5,-2,0) );
-			//Brazo Der
-            rightArm = new THREE.Mesh( geometry2, material ); 
-			rightArm.applyMatrix( new THREE.Matrix4().makeScale(.5,1.5,.5) );
-			rightArm.applyMatrix( new THREE.Matrix4().makeTranslation(0.5,1,0) );
-            //Brazo Izq
-            leftArm = new THREE.Mesh( geometry2, material ); 
-			leftArm.applyMatrix( new THREE.Matrix4().makeScale(.5,1.5,.5) );
-			leftArm.applyMatrix( new THREE.Matrix4().makeTranslation(-0.5,1,0) );
+			hips = new THREE.Points( geometry1, puntosmaterial );          
+            //HOMBRO Derecho
+            rightH= new THREE.Points( geometry, puntosmaterial );
+            rightH.applyMatrix( new THREE.Matrix4().makeTranslation(1.5,1.5,.5) );
+            //HOMBRO izq
+            leftH = new THREE.Points( geometry, puntosmaterial ); 
+            leftH.applyMatrix( new THREE.Matrix4().makeTranslation(-1,1.5,.5) );
             
-            //alksjdhflaksjdf
-			hips.add(leftLeg);
-			hips.add(rightLeg);
-            hips.add(rightArm);
-            hips.add(leftArm);
+            //Pierna Izq
+			leftLeg = new THREE.Points( geometry2, puntosmaterial ); 
+			leftLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,4,.5) );
+			leftLeg.applyMatrix( new THREE.Matrix4().makeTranslation(.2,-2,.8) );
+            //Pierna Der
+            rightLeg = new THREE.Points( geometry2, puntosmaterial ); 
+			rightLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,4,.5) );
+			rightLeg.applyMatrix( new THREE.Matrix4().makeTranslation(1.2,-2,.8) );
+			
+            //Brazo Der
+            rightArm = new THREE.Points( geometry2, puntosmaterial ); 
+			rightArm.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
+			rightArm.applyMatrix( new THREE.Matrix4().makeTranslation(0.5,-1,0) );
+            //Brazo Izq
+            leftArm = new THREE.Points( geometry2, puntosmaterial ); 
+			leftArm.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
+			leftArm.applyMatrix( new THREE.Matrix4().makeTranslation(.5,-1,0) );
+            //mano Der
+            rightHand = new THREE.Points( geometry2, puntosmaterial );
+            rightHand.applyMatrix( new THREE.Matrix4().makeTranslation(0,-.6,0));
+            //mano izq
+            leftHand = new THREE.Points( geometry2, puntosmaterial ); 
+            leftHand.applyMatrix( new THREE.Matrix4().makeTranslation(0,-.6,0) );
+            //rightFoot
+            rightFoot = new THREE.Points( geometry, puntosmaterial ); 
+            rightFoot.applyMatrix( new THREE.Matrix4().makeScale(1,.1,2) );
+			rightFoot.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-.2,0));
+            //leftFoot
+            leftFoot = new THREE.Points( geometry, puntosmaterial );
+            leftFoot.applyMatrix( new THREE.Matrix4().makeScale(1,.1,2) );
+			leftFoot.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-.2,0));
+            
+            
+            
+            
+            //alksjdhflaksjdf			
             hips.add(cara);
-		
+            hips.add(rightH);
+            hips.add(leftH);
+            hips.add(rightLeg);
+            hips.add(leftLeg);
+            
+            rightH.add(rightArm);            
+            leftH.add(leftArm);
+            
+            rightArm.add(rightHand);
+            leftArm.add(leftHand);
+            
+            rightLeg.add(rightFoot);
+            leftLeg.add(leftFoot);
+            
 		  	//AGREGAR A LA ESCENA
             scene.add( gridHelperXZ );
 		  	scene.add( arrowX );	
@@ -227,6 +287,7 @@
     function animate() {
         render();
         requestAnimationFrame( animate );
+        stats.update();
     }
     
     function render(){
