@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Personaje - Ejemplo</title>
+        <title>Sistema Solar</title>
         <style>
             html, body { margin: 0; padding: 0; overflow: hidden; }
             #info {
@@ -14,17 +14,15 @@
         </style>
     </head>
     <body>
-        <div id="info">Tarea<br/>
+        <div id="info">Parcial<br/>
             <br/>
            <br/>
         </div>
     <script src="js/three.min.js"></script>
     <script>
 		var scene, aspect, camera, renderer;
-		var geometry, geometry1, geometry2;
-		var hips, torso, cara;
-		var rightFoot, rightLeg, rightArm, rightHand, rightH;
-		var leftFoot, leftLeg, leftArm, leftHand, leftH;
+		var Sol;
+		var Mercurio, Venus, Tierra, Marte, Jupiter, Saturno, Urano, Neptuno, Pluton;
 		var startTime = Date.now();
         
 		var upArrow = false;
@@ -139,9 +137,9 @@
 		  	var axesHelper1 = new THREE.AxesHelper( size/10 );
 			var axesHelper2 = new THREE.AxesHelper( size/10 );
 			var axesHelper3 = new THREE.AxesHelper( size/10 );
-		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
-		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
-		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperXY = new THREE.GridHelper( size*size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size*size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size*size, divisions, color2, color2 );
             
             //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
             gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
@@ -153,132 +151,85 @@
             var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
             var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
 			
-            //geometrias
-            
-            function geoCubo(x,y,z){
-					var geometria = new THREE.Geometry();
-					for(var i = 0; i <= x; i+=0.1){
-						for(var j = 0; j <= y; j+=0.1){
-                            for(var k = 0; k <= z; k+=0.1){
-							var punto = new THREE.Vector3();
-							punto.x = i;
-							punto.y = j;
-							punto.z=k;
-							geometria.vertices.push(punto);
-                            }
-						}
-					}
-                return geometria;
-            }
-            
-            function geoCilindro(r,y){
-                var res=5;
-                var geometria = new THREE.Geometry();
-                    for( var i = 0; i < res; i+=0.1){
-						for( var j = 0; j < res; j+=0.1){
-                            for(var k = 0; k < y ; k+=0.1){
-							var punto = new THREE.Vector3();
-							punto.x = (r* (res - i) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res) ;
-							punto.y = k;
-							punto.z = (r * (res - i) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res) ;
-							geometria.vertices.push( punto );
-                            }
-						}
-					}
-                return geometria;
-            }
-			
-			
-            
-			var geometrycara = new THREE.SphereGeometry( 1, 10, 12 );
+            //Geometrias
+			geometry = new THREE.SphereGeometry( 20, 20, 20 );
+            geometry1 = new THREE.SphereGeometry( 1, 20, 20 );
+            geometry2 = new THREE.SphereGeometry( 2, 20, 20 );
+            geometry3 = new THREE.SphereGeometry( 3, 20, 20 );
+            geometry4 = new THREE.SphereGeometry( 3, 20, 20 );
+            geometry5 = new THREE.SphereGeometry( 5, 20, 20 );
+            geometry6 = new THREE.SphereGeometry( 8, 20, 20 );
+            geometry7 = new THREE.SphereGeometry( 7, 20, 20 );
+            geometry8 = new THREE.SphereGeometry( 6, 20, 20 );
+            geometry9 = new THREE.SphereGeometry( 1, 20, 20 );
         
-            geometry = geoCubo( 1, .5, .5 );
+            //Material			
+            var materialSol = new THREE.MeshBasicMaterial( { color: 0xFBCD00  } );
+            var materialMer = new THREE.MeshBasicMaterial( { color: 0x703C01  } );
+            var materialVen = new THREE.MeshBasicMaterial( { color: 0xFB8100  } );
+            var materialTier = new THREE.MeshBasicMaterial( { color: 0x0281B8  } );
+            var materialMar = new THREE.MeshBasicMaterial( { color: 0xFF0000  } );
+            var materialJup = new THREE.MeshBasicMaterial( { color: 0xE8BF80  } );
+            var materialSat = new THREE.MeshBasicMaterial( { color: 0xFCB793  } );
+            var materialUr = new THREE.MeshBasicMaterial( { color: 0x00FFFF } );
+            var materialNep = new THREE.MeshBasicMaterial( { color: 0x00229E  } );
+            var materialPlu = new THREE.MeshBasicMaterial( { color: 0x5D00FF  } );
             
-            geometry1 = geoCubo( 1.5, 2, 1.5 );
-            
-			geometry2 = geoCilindro( .5, .5);
-
-
-			//CREAR LOS MATERIALES			
-            var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
-            var material1 = new THREE.MeshBasicMaterial( {color: 0x68ffff} );
-            var puntosmaterial = new THREE.PointsMaterial( { color: 0x68ffff, size: 0.1 } );
 			
 			//CREAR LOS OBJETOS
-            //cara
-            cara = new THREE.Mesh( geometrycara, material);
-            cara.applyMatrix( new THREE.Matrix4().makeTranslation(0.7,3,0.7) );
-            //rojo x
-            //body
-			hips = new THREE.Points( geometry1, puntosmaterial );          
-            //HOMBRO Derecho
-            rightH= new THREE.Points( geometry, puntosmaterial );
-            rightH.applyMatrix( new THREE.Matrix4().makeTranslation(1.5,1.5,.5) );
-            //HOMBRO izq
-            leftH = new THREE.Points( geometry, puntosmaterial ); 
-            leftH.applyMatrix( new THREE.Matrix4().makeTranslation(-1,1.5,.5) );
+            Sol = new THREE.Mesh( geometry, materialSol);
             
-            //Pierna Izq
-			leftLeg = new THREE.Points( geometry2, puntosmaterial ); 
-			leftLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,4,.5) );
-			leftLeg.applyMatrix( new THREE.Matrix4().makeTranslation(.2,-2,.8) );
-            //Pierna Der
-            rightLeg = new THREE.Points( geometry2, puntosmaterial ); 
-			rightLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,4,.5) );
-			rightLeg.applyMatrix( new THREE.Matrix4().makeTranslation(1.2,-2,.8) );
-			
-            //Brazo Der
-            rightArm = new THREE.Points( geometry2, puntosmaterial ); 
-			rightArm.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
-			rightArm.applyMatrix( new THREE.Matrix4().makeTranslation(0.5,-1,0) );
-            //Brazo Izq
-            leftArm = new THREE.Points( geometry2, puntosmaterial ); 
-			leftArm.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
-			leftArm.applyMatrix( new THREE.Matrix4().makeTranslation(.5,-1,0) );
-            //mano Der
-            rightHand = new THREE.Points( geometry2, puntosmaterial );
-            rightHand.applyMatrix( new THREE.Matrix4().makeTranslation(0,-.6,0));
-            //mano izq
-            leftHand = new THREE.Points( geometry2, puntosmaterial ); 
-            leftHand.applyMatrix( new THREE.Matrix4().makeTranslation(0,-.6,0) );
-            //rightFoot
-            rightFoot = new THREE.Points( geometry, puntosmaterial ); 
-            rightFoot.applyMatrix( new THREE.Matrix4().makeScale(1,.1,2) );
-			rightFoot.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-.2,0));
-            //leftFoot
-            leftFoot = new THREE.Points( geometry, puntosmaterial );
-            leftFoot.applyMatrix( new THREE.Matrix4().makeScale(1,.1,2) );
-			leftFoot.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-.2,0));
+            Mercurio = new THREE.Mesh( geometry1, materialMer);
+            Mercurio.applyMatrix( new THREE.Matrix4().makeTranslation(30,0,0));
+            
+            Venus = new THREE.Mesh( geometry2, materialVen);
+            Venus.applyMatrix( new THREE.Matrix4().makeTranslation(40,0,0));
+            
+            Tierra = new THREE.Mesh( geometry3, materialTier);
+            Tierra.applyMatrix( new THREE.Matrix4().makeTranslation(50,0,0));
+            
+            Marte= new THREE.Mesh( geometry4, materialMar);
+            Marte.applyMatrix( new THREE.Matrix4().makeTranslation(60,0,0));
+            
+            Jupiter= new THREE.Mesh( geometry5, materialJup);
+            Jupiter.applyMatrix( new THREE.Matrix4().makeTranslation(80,0,0));
+            
+            Saturno= new THREE.Mesh( geometry6, materialSat);
+            Saturno.applyMatrix( new THREE.Matrix4().makeTranslation(110,0,0));
+            
+            Urano= new THREE.Mesh( geometry7, materialUr);
+            Urano.applyMatrix( new THREE.Matrix4().makeTranslation(150,0,0));
+            
+            Neptuno = new THREE.Mesh( geometry8, materialNep);
+            Neptuno.applyMatrix( new THREE.Matrix4().makeTranslation(180,0,0));
+            
+            Pluton= new THREE.Mesh( geometry9, materialPlu);
+            Pluton.applyMatrix( new THREE.Matrix4().makeTranslation(200,0,0));
+            
+            
+            //Unir todito
+            Sol.add(Mercurio);
+            Sol.add(Venus);
+            Sol.add(Tierra);
+            Sol.add(Marte);
+            Sol.add(Jupiter);
+            Sol.add(Saturno);
+            Sol.add(Urano);
+            Sol.add(Neptuno);
+            Sol.add(Pluton);
             
             
             
-            
-            //alksjdhflaksjdf			
-            hips.add(cara);
-            hips.add(rightH);
-            hips.add(leftH);
-            hips.add(rightLeg);
-            hips.add(leftLeg);
-            
-            rightH.add(rightArm);            
-            leftH.add(leftArm);
-            
-            rightArm.add(rightHand);
-            leftArm.add(leftHand);
-            
-            rightLeg.add(rightFoot);
-            leftLeg.add(leftFoot);
-            
-		  	//AGREGAR A LA ESCENA
+            //AGREGAR A LA ESCENA
             scene.add( gridHelperXZ );
 		  	scene.add( arrowX );	
 		  	scene.add( arrowY );	
 		  	scene.add( arrowZ );	
-			scene.add( hips );
-			
+			scene.add( Sol );
+            
 			
 			//MOVER LA CAMARA 
-		  	camera.position.z = 20;			
+		  	camera.position.z = 250;	
 		  	camera.lookAt( origin );
 			
 			renderer.render( scene, camera );
@@ -330,7 +281,7 @@
 				0, 0, 1, tz,
 				0, 0, 0, 1	);
 		
-		hips.matrix.multiply(t); 	//APLICAR LA TRASLACIÓN A NIVEL LOCAL
+		Sol.matrix.multiply(t); 
 		
 		//ROTACIONES
 		var ct1 = Math.cos(theta);
@@ -361,17 +312,13 @@
 		
 		//ROTACION EN UN EJE PARALELO
 		var tempMatrix = new THREE.Matrix4();
-		tempMatrix.copyPosition( hips.matrix );
-		hips.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
-		hips.applyMatrix(r);
-		hips.applyMatrix( tempMatrix );
-
-		leftLeg.applyMatrix(r1);
-        rightLeg.applyMatrix(r2);
-        leftArm.applyMatrix(r2);
-        rightArm.applyMatrix(r1);
+		tempMatrix.copyPosition( Sol.matrix );
+		Sol.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
+		Sol.applyMatrix(r);
+		Sol.applyMatrix( tempMatrix );
         
-				
+        Tierra.applyMatrix(r1);
+        
         //camara
         var dtime = Date.now()-startTime;
 			camera.position.x = 2*Math.pow(Math.sin(dtime/10000),2);

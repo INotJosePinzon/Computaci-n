@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Personaje - Ejemplo</title>
+        <title> matrices en un cuadrado </title>
         <style>
             html, body { margin: 0; padding: 0; overflow: hidden; }
             #info {
@@ -14,19 +14,15 @@
         </style>
     </head>
     <body>
-        <div id="info">Tarea<br/>
-            <br/>
-           <br/>
+        <div id="info">Cubo<br/>
         </div>
     <script src="js/three.min.js"></script>
     <script>
 		var scene, aspect, camera, renderer;
-		var geometry, geometry1, geometry2;
-		var hips, torso, cara;
-		var rightFoot, rightLeg, rightArm, rightHand, rightH;
-		var leftFoot, leftLeg, leftArm, leftHand, leftH;
+		var geometry;
+        var cubo;
 		var startTime = Date.now();
-        
+				
 		var upArrow = false;
 		var downArrow = false;
 		var leftArrow = false;
@@ -126,13 +122,13 @@
 			var x = new THREE.Vector3( 1, 0, 0 );
 			var y = new THREE.Vector3( 0, 1, 0 );
 		  	var z = new THREE.Vector3( 0, 0, 1 );
-			var color1 = new THREE.Color( 0x64ffff );
+			var color1 = new THREE.Color( 0xFFFFFF );
 		  	var color2 = new THREE.Color( 0x333333 );
 		  	var colorR = new THREE.Color( 0xAA0000 );
 		  	var colorG = new THREE.Color( 0x00AA00 );
 		  	var colorB = new THREE.Color( 0x0000AA );
 			var colorRd = new THREE.Color( 0xAA6666 );
-		  	var colorGd = new THREE.Color( 0xB9770E );
+		  	var colorGd = new THREE.Color( 0x66AA66 );
 		  	var colorBd = new THREE.Color( 0x6666AA );
 		  
 		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
@@ -153,132 +149,31 @@
             var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
             var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
 			
-            //geometrias
-            
-            function geoCubo(x,y,z){
-					var geometria = new THREE.Geometry();
-					for(var i = 0; i <= x; i+=0.1){
-						for(var j = 0; j <= y; j+=0.1){
-                            for(var k = 0; k <= z; k+=0.1){
-							var punto = new THREE.Vector3();
-							punto.x = i;
-							punto.y = j;
-							punto.z=k;
-							geometria.vertices.push(punto);
-                            }
-						}
-					}
-                return geometria;
-            }
-            
-            function geoCilindro(r,y){
-                var res=5;
-                var geometria = new THREE.Geometry();
-                    for( var i = 0; i < res; i+=0.1){
-						for( var j = 0; j < res; j+=0.1){
-                            for(var k = 0; k < y ; k+=0.1){
-							var punto = new THREE.Vector3();
-							punto.x = (r* (res - i) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res) ;
-							punto.y = k;
-							punto.z = (r * (res - i) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res) ;
-							geometria.vertices.push( punto );
-                            }
-						}
-					}
-                return geometria;
-            }
-			
-			
-            
-			var geometrycara = new THREE.SphereGeometry( 1, 10, 12 );
-        
-            geometry = geoCubo( 1, .5, .5 );
-            
-            geometry1 = geoCubo( 1.5, 2, 1.5 );
-            
-			geometry2 = geoCilindro( .5, .5);
+			//CREAR LAS GEOMETRÍAS
+            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
 
-			//CREAR LOS MATERIALES			
-            var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
-            var material1 = new THREE.MeshBasicMaterial( {color: 0x68ffff} );
-            var puntosmaterial = new THREE.PointsMaterial( { color: 0x68ffff, size: 0.1 } );
+            
+			
+			//CREAR LOS MATERIALES
+			var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
 			
 			//CREAR LOS OBJETOS
-            //cara
-            cara = new THREE.Mesh( geometrycara, material);
-            cara.applyMatrix( new THREE.Matrix4().makeTranslation(0.7,3,0.7) );
-            //rojo x
-            //body
-			hips = new THREE.Points( geometry1, puntosmaterial );          
-            //HOMBRO Derecho
-            rightH= new THREE.Points( geometry, puntosmaterial );
-            rightH.applyMatrix( new THREE.Matrix4().makeTranslation(1.5,1.5,.5) );
-            //HOMBRO izq
-            leftH = new THREE.Points( geometry, puntosmaterial ); 
-            leftH.applyMatrix( new THREE.Matrix4().makeTranslation(-1,1.5,.5) );
-            
-            //Pierna Izq
-			leftLeg = new THREE.Points( geometry2, puntosmaterial ); 
-			leftLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,4,.5) );
-			leftLeg.applyMatrix( new THREE.Matrix4().makeTranslation(.2,-2,.8) );
-            //Pierna Der
-            rightLeg = new THREE.Points( geometry2, puntosmaterial ); 
-			rightLeg.applyMatrix( new THREE.Matrix4().makeScale(.5,4,.5) );
-			rightLeg.applyMatrix( new THREE.Matrix4().makeTranslation(1.2,-2,.8) );
-			
-            //Brazo Der
-            rightArm = new THREE.Points( geometry2, puntosmaterial ); 
-			rightArm.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
-			rightArm.applyMatrix( new THREE.Matrix4().makeTranslation(0.5,-1,0) );
-            //Brazo Izq
-            leftArm = new THREE.Points( geometry2, puntosmaterial ); 
-			leftArm.applyMatrix( new THREE.Matrix4().makeScale(.5,2,.5) );
-			leftArm.applyMatrix( new THREE.Matrix4().makeTranslation(.5,-1,0) );
-            //mano Der
-            rightHand = new THREE.Points( geometry2, puntosmaterial );
-            rightHand.applyMatrix( new THREE.Matrix4().makeTranslation(0,-.6,0));
-            //mano izq
-            leftHand = new THREE.Points( geometry2, puntosmaterial ); 
-            leftHand.applyMatrix( new THREE.Matrix4().makeTranslation(0,-.6,0) );
-            //rightFoot
-            rightFoot = new THREE.Points( geometry, puntosmaterial ); 
-            rightFoot.applyMatrix( new THREE.Matrix4().makeScale(1,.1,2) );
-			rightFoot.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-.2,0));
-            //leftFoot
-            leftFoot = new THREE.Points( geometry, puntosmaterial );
-            leftFoot.applyMatrix( new THREE.Matrix4().makeScale(1,.1,2) );
-			leftFoot.applyMatrix( new THREE.Matrix4().makeTranslation(-.5,-.2,0));
-            
-            
-            
-            
-            //alksjdhflaksjdf			
-            hips.add(cara);
-            hips.add(rightH);
-            hips.add(leftH);
-            hips.add(rightLeg);
-            hips.add(leftLeg);
-            
-            rightH.add(rightArm);            
-            leftH.add(leftArm);
-            
-            rightArm.add(rightHand);
-            leftArm.add(leftHand);
-            
-            rightLeg.add(rightFoot);
-            leftLeg.add(leftFoot);
-            
+            cubo = new THREE.Mesh( geometry, material );
+
+		
 		  	//AGREGAR A LA ESCENA
             scene.add( gridHelperXZ );
 		  	scene.add( arrowX );	
 		  	scene.add( arrowY );	
 		  	scene.add( arrowZ );	
-			scene.add( hips );
+			scene.add( cubo );
 			
 			
-			//MOVER LA CAMARA 
-		  	camera.position.z = 20;			
+			//MOVER LA CAMARA
+			camera.position.x = 10;
+			camera.position.y = 5;	 
+		  	camera.position.z = 10;			
 		  	camera.lookAt( origin );
 			
 			renderer.render( scene, camera );
@@ -287,7 +182,6 @@
     function animate() {
         render();
         requestAnimationFrame( animate );
-        stats.update();
     }
     
     function render(){
@@ -330,7 +224,8 @@
 				0, 0, 1, tz,
 				0, 0, 0, 1	);
 		
-		hips.matrix.multiply(t); 	//APLICAR LA TRASLACIÓN A NIVEL LOCAL
+		cubo.matrix.multiply(t); 	
+        //APLICAR LA TRASLACIÓN A NIVEL LOCAL
 		
 		//ROTACIONES
 		var ct1 = Math.cos(theta);
@@ -348,7 +243,6 @@
 					0,  1,  0, 0, 
 				  -ss,  0, cs, 0,
 					0,  0,  0, 1 );	
-        
 		//MATRICES DE ROTACIÓN EN EJE LOCAL DE PIERNAS	
 		r1.set( 	1,  0,  0, 0,
 					0, ct1,-st1, 0, 
@@ -361,23 +255,14 @@
 		
 		//ROTACION EN UN EJE PARALELO
 		var tempMatrix = new THREE.Matrix4();
-		tempMatrix.copyPosition( hips.matrix );
-		hips.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
-		hips.applyMatrix(r);
-		hips.applyMatrix( tempMatrix );
-
-		leftLeg.applyMatrix(r1);
-        rightLeg.applyMatrix(r2);
-        leftArm.applyMatrix(r2);
-        rightArm.applyMatrix(r1);
+		tempMatrix.copyPosition( body.matrix );
+		cubo.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
+		cubo.applyMatrix(r);
+		cubo.applyMatrix( tempMatrix );
+                
         
-				
-        //camara
-        var dtime = Date.now()-startTime;
-			camera.position.x = 2*Math.pow(Math.sin(dtime/10000),2);
-			camera.position.y = 2*Math.pow(Math.sin(dtime/10000),2);
-			camera.lookAt( 0, 0, 0 );
-			renderer.render( scene, camera );
+        camera.lookAt( 0, 0, 0 );
+        renderer.render( scene, camera );
     }
     </script>
   </body>
