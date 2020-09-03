@@ -21,7 +21,7 @@
     <script src="js/three.min.js"></script>
     <script>
 		var scene, aspect, camera, renderer;
-		var Sol;
+		var Sol, Luna;
 		var Mercurio, Venus, Tierra, Marte, Jupiter, Saturno, Urano, Neptuno, Pluton;
 		var startTime = Date.now();
         
@@ -134,10 +134,10 @@
 		  	var colorBd = new THREE.Color( 0x6666AA );
 		  
 		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
-		  	var axesHelper1 = new THREE.AxesHelper( size/10 );
-			var axesHelper2 = new THREE.AxesHelper( size/10 );
-			var axesHelper3 = new THREE.AxesHelper( size/10 );
-		  	var gridHelperXY = new THREE.GridHelper( size*size, divisions, color1, color1);
+		  	var axesHelper1 = new THREE.AxesHelper( 100 );
+			var axesHelper2 = new THREE.AxesHelper( 100 );
+			var axesHelper3 = new THREE.AxesHelper( 100 );
+		  	var gridHelperXY = new THREE.GridHelper( 100, divisions, color1, color1);
 		  	var gridHelperXZ = new THREE.GridHelper( size*size, divisions, color2, color2 );
 		  	var gridHelperYZ = new THREE.GridHelper( size*size, divisions, color2, color2 );
             
@@ -174,37 +174,40 @@
             var materialUr = new THREE.MeshBasicMaterial( { color: 0x00FFFF } );
             var materialNep = new THREE.MeshBasicMaterial( { color: 0x00229E  } );
             var materialPlu = new THREE.MeshBasicMaterial( { color: 0x5D00FF  } );
-            
+            var materialLu = new THREE.MeshBasicMaterial( { color: 0xffffff  } );
 			
 			//CREAR LOS OBJETOS
             Sol = new THREE.Mesh( geometry, materialSol);
             
             Mercurio = new THREE.Mesh( geometry1, materialMer);
-            Mercurio.applyMatrix( new THREE.Matrix4().makeTranslation(30,0,0));
+            Mercurio.applyMatrix( new THREE.Matrix4().makeTranslation(30,0,30));
             
             Venus = new THREE.Mesh( geometry2, materialVen);
-            Venus.applyMatrix( new THREE.Matrix4().makeTranslation(40,0,0));
+            Venus.applyMatrix( new THREE.Matrix4().makeTranslation(-40,0,40));
             
             Tierra = new THREE.Mesh( geometry3, materialTier);
-            Tierra.applyMatrix( new THREE.Matrix4().makeTranslation(50,0,0));
+            Tierra.applyMatrix( new THREE.Matrix4().makeTranslation(50,0,-50));
             
             Marte= new THREE.Mesh( geometry4, materialMar);
-            Marte.applyMatrix( new THREE.Matrix4().makeTranslation(60,0,0));
+            Marte.applyMatrix( new THREE.Matrix4().makeTranslation(-60,0,-60));
             
             Jupiter= new THREE.Mesh( geometry5, materialJup);
-            Jupiter.applyMatrix( new THREE.Matrix4().makeTranslation(80,0,0));
+            Jupiter.applyMatrix( new THREE.Matrix4().makeTranslation(80,0,-80));
             
             Saturno= new THREE.Mesh( geometry6, materialSat);
-            Saturno.applyMatrix( new THREE.Matrix4().makeTranslation(110,0,0));
+            Saturno.applyMatrix( new THREE.Matrix4().makeTranslation(-110,0,110));
             
             Urano= new THREE.Mesh( geometry7, materialUr);
-            Urano.applyMatrix( new THREE.Matrix4().makeTranslation(150,0,0));
+            Urano.applyMatrix( new THREE.Matrix4().makeTranslation(-150,0,-150));
             
             Neptuno = new THREE.Mesh( geometry8, materialNep);
-            Neptuno.applyMatrix( new THREE.Matrix4().makeTranslation(180,0,0));
+            Neptuno.applyMatrix( new THREE.Matrix4().makeTranslation(-180,0,180));
             
             Pluton= new THREE.Mesh( geometry9, materialPlu);
-            Pluton.applyMatrix( new THREE.Matrix4().makeTranslation(200,0,0));
+            Pluton.applyMatrix( new THREE.Matrix4().makeTranslation(200,0,-200));
+            
+            Luna= new THREE.Mesh( geometry9, materialLu);
+            Luna.applyMatrix( new THREE.Matrix4().makeTranslation(2,2,2));
             
             
             //Unir todito
@@ -217,6 +220,8 @@
             Sol.add(Urano);
             Sol.add(Neptuno);
             Sol.add(Pluton);
+            
+            Tierra.add(Luna);
             
             
             
@@ -281,7 +286,7 @@
 				0, 0, 1, tz,
 				0, 0, 0, 1	);
 		
-		Sol.matrix.multiply(t); 
+		Sol.applyMatrix(t); 
 		
 		//ROTACIONES
 		var ct1 = Math.cos(theta);
@@ -290,15 +295,21 @@
 		var st1 = Math.sin(theta);
 		var st2 = Math.sin(-theta);
 		var ss = Math.sin(sigma);
-		var r = new THREE.Matrix4();
+        var rx = new THREE.Matrix4();
+		var ry = new THREE.Matrix4();
 		var r1 = new THREE.Matrix4();
 		var r2 = new THREE.Matrix4();
 
 		//MATRIZ DE ROTACIÓN EN EJE Y
-		r.set( 	   cs,  0, ss, 0,
+		ry.set(    cs,  0, ss, 0,
 					0,  1,  0, 0, 
 				  -ss,  0, cs, 0,
-					0,  0,  0, 1 );	
+					0,  0,  0, 1 );
+        //MATRIZ DE ROTACIÓN EN EJE x
+		rx.set(     1,  0,   0,  0,
+					0,  cs,  -ss, 0, 
+				    0,  ss, cs, 0,
+					0,  0,    0, 1 );	
         
 		//MATRICES DE ROTACIÓN EN EJE LOCAL DE PIERNAS	
 		r1.set( 	1,  0,  0, 0,
@@ -314,15 +325,25 @@
 		var tempMatrix = new THREE.Matrix4();
 		tempMatrix.copyPosition( Sol.matrix );
 		Sol.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
-		Sol.applyMatrix(r);
+		Sol.applyMatrix(ry);
 		Sol.applyMatrix( tempMatrix );
         
-        Tierra.applyMatrix(r1);
+        Luna.applyMatrix(ry);
+        Luna.applyMatrix(rx);
+        Mercurio.applyMatrix(ry);
+        Venus.applyMatrix(ry);
+        Marte.applyMatrix(ry);
+        Jupiter.applyMatrix(ry);
+        Saturno.applyMatrix(ry);
+        Urano.applyMatrix(ry);
+        Neptuno.applyMatrix(ry);
+        Pluton.applyMatrix(ry);
+        Tierra.applyMatrix(ry);
         
         //camara
         var dtime = Date.now()-startTime;
-			camera.position.x = 2*Math.pow(Math.sin(dtime/10000),2);
-			camera.position.y = 2*Math.pow(Math.sin(dtime/10000),2);
+			camera.position.x = 100*Math.pow(Math.sin(dtime/10000),2);
+			camera.position.y = 100*Math.pow(Math.sin(dtime/10000),2);
 			camera.lookAt( 0, 0, 0 );
 			renderer.render( scene, camera );
     }
