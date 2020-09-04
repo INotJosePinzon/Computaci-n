@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title> matrices en un cuadrado </title>
+        <title>transformación</title>
         <style>
             html, body { margin: 0; padding: 0; overflow: hidden; }
             #info {
@@ -14,107 +14,31 @@
         </style>
     </head>
     <body>
-        <div id="info">Cubo<br/>
+        <div id="info">parcial<br/>
+            Usar flecha arriba para realizar, paso a paso, una rotación.<br/>
         </div>
     <script src="js/three.min.js"></script>
     <script>
 		var scene, aspect, camera, renderer;
-		var geometry;
-        var cubo;
-		var startTime = Date.now();
-				
+		var startTime = Date.now();		
+		var pressed = false;
 		var upArrow = false;
-		var downArrow = false;
-		var leftArrow = false;
-		var rightArrow = false;
-		var scaleUp = false;
-		var scaleDown = false;
-		var xAxis = true;
-		var yAxis = false;
-		var zAxis = false;
-		
-		var thetaSum=0;
-		var positivo=false;
-		
+
+		var tempMatrix;
+		var flag = 0;
 		init();
 		animate();
 	
 		function init(){
+			//INICIALIZACIÓN DE LA ESCENA
 			scene = new THREE.Scene();
 			aspect = window.innerWidth / window.innerHeight;
 			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
 			renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
-				  			
-			//EVENTOS DE TECLADO
-			
-			var onKeyDown = function ( event ) {
-				switch ( event.keyCode ) {
-					case 38: // TRASLADAR ADELANTE
-						upArrow = true;
-						break;
-					case 40: // TRASLADAR ATRÁS
-						downArrow = true;
-						break;
-					case 83: // ESCALA AGRANDAR
-						scaleUp = true;
-						break;
-					case 87: // ESCALA DISMINUIR
-						scaleDown = true;
-						break;
-					case 37: // ROTAR CW
-						leftArrow = true;
-						break;
-					case 39: // ROTAR CCW
-						rightArrow = true;
-						break;
-					case 88: // SELECCIONAR EJE X DE ROTACION
-						yAxis = false;
-						zAxis = false;
-						xAxis = true;
-						break;
-					case 89: // SELECCIONAR EJE Y DE ROTACION
-						xAxis = false;
-						zAxis = false;
-						yAxis = true;
-						break;
-					case 90: // SELECCIONAR EJE Z DE 
-						xAxis = false;
-						yAxis = false;
-						zAxis = true;
-						break;
-				}
-			};	  
-		  			
-			var onKeyUp = function ( event ) {
-				switch ( event.keyCode ) {
-					case 38: // TRASLADAR
-						upArrow = false;
-						break;
-					case 40: // TRASLADAR
-						downArrow = false;
-						break;
-					case 37: // ROTAR CW
-						leftArrow = false;
-						break;
-					case 39: // ROTAR CCW
-						rightArrow = false;
-						break;
-					case 83: // ESCALA AGRANDAR
-						scaleUp = false;
-						break;
-					case 87: // ESCALA DISMINUIR
-						scaleDown = false;
-						break;
-				}
-			};	  	
-			
-			document.addEventListener( 'keydown', onKeyDown, false );
-			document.addEventListener( 'keyup', onKeyUp, false );
 			
 			//ELEMENTOS DE ESCENA
-							  
 			var size = 10;
 			var arrowSize = 1;
 			var divisions = size;
@@ -124,17 +48,15 @@
 		  	var z = new THREE.Vector3( 0, 0, 1 );
 			var color1 = new THREE.Color( 0xFFFFFF );
 		  	var color2 = new THREE.Color( 0x333333 );
-		  	var colorR = new THREE.Color( 0xAA0000 );
-		  	var colorG = new THREE.Color( 0x00AA00 );
-		  	var colorB = new THREE.Color( 0x0000AA );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
 			var colorRd = new THREE.Color( 0xAA6666 );
 		  	var colorGd = new THREE.Color( 0x66AA66 );
 		  	var colorBd = new THREE.Color( 0x6666AA );
 		  
 		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
-		  	var axesHelper1 = new THREE.AxesHelper( size/10 );
-			var axesHelper2 = new THREE.AxesHelper( size/10 );
-			var axesHelper3 = new THREE.AxesHelper( size/10 );
+		  	var axesHelper = new THREE.AxesHelper( size );
 		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
 		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
 		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
@@ -148,120 +70,60 @@
             var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
             var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
             var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
-			
-			//CREAR LAS GEOMETRÍAS
-            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-
-
             
-			
-			//CREAR LOS MATERIALES
-			var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
-			
-			//CREAR LOS OBJETOS
-            cubo = new THREE.Mesh( geometry, material );
-
-		
+			//geometrias
+			var geometry = new THREE.PlaneGeometry( 30, 30, 25 );
+            //material
+            var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+            //objetos
+            var plane = new THREE.Mesh( geometry, material );
+            var plane2 = new THREE.Mesh( geometry, material );
+            var plane3 = new THREE.Mesh( geometry, material );
+            
+					
 		  	//AGREGAR A LA ESCENA
             scene.add( gridHelperXZ );
 		  	scene.add( arrowX );	
 		  	scene.add( arrowY );	
 		  	scene.add( arrowZ );	
-			scene.add( cubo );
+			scene.add( plane );
+            scene.add( plane2 );
+            scene.add( plane3 );
 			
-			
-			//MOVER LA CAMARA
-			camera.position.x = 10;
-			camera.position.y = 5;	 
-		  	camera.position.z = 10;			
+			//MOVER LA CÁMARA
+			camera.position.x = 5;
+			camera.position.y = 3;	 
+		  	camera.position.z = 7;			
 		  	camera.lookAt( origin );
 			
-			renderer.render( scene, camera );
-			}
-    
-    function animate() {
-        render();
-        requestAnimationFrame( animate );
-    }
-    
-    function render(){
-        var dtime = Date.now()-startTime;
-		var tx=0, ty=0, tz=0;	//Variables para traslacion
-		var sc = 1;				//Variable para escala
-		var theta=0;			//Variable para ángulo de rotacion de piernas
-		var sigma=0;			//Variable para ángulo de rotación de caderas
-		
-		if(thetaSum>=60*Math.PI/180)
-			positivo = false;
-		if(thetaSum<=-60*Math.PI/180)
-			positivo = true;
-		
-		if(upArrow) {
-			tx=0; ty=0; tz=.1;
-			if(positivo)
-				theta = .1;
-			else
-				theta = -.1;
-		}
-		if(downArrow) {
-			tx=0; ty=0; tz=-.1;
-			if(positivo)
-				theta = .1;
-			else
-				theta = -.1;
-		}
-		thetaSum+=theta;
-		
-		if(rightArrow)
-			sigma = -.1;
-		if(leftArrow)
-			sigma = .1;
-		
-		//MATRIZ DE TRASLACIÓN
-		var t = new THREE.Matrix4();
-		t.set( 	1, 0, 0, tx,
-				0, 1, 0, ty, 
-				0, 0, 1, tz,
-				0, 0, 0, 1	);
-		
-		cubo.matrix.multiply(t); 	
-        //APLICAR LA TRASLACIÓN A NIVEL LOCAL
-		
-		//ROTACIONES
-		var ct1 = Math.cos(theta);
-		var ct2 = Math.cos(-theta);
-		var cs = Math.cos(sigma);
-		var st1 = Math.sin(theta);
-		var st2 = Math.sin(-theta);
-		var ss = Math.sin(sigma);
-		var r = new THREE.Matrix4();
-		var r1 = new THREE.Matrix4();
-		var r2 = new THREE.Matrix4();
-
-		//MATRIZ DE ROTACIÓN EN EJE Y
-		r.set( 	   cs,  0, ss, 0,
-					0,  1,  0, 0, 
-				  -ss,  0, cs, 0,
-					0,  0,  0, 1 );	
-		//MATRICES DE ROTACIÓN EN EJE LOCAL DE PIERNAS	
-		r1.set( 	1,  0,  0, 0,
-					0, ct1,-st1, 0, 
-					0, st1, ct1, 0,
-					0,  0,  0, 1 );	
-		r2.set( 	1,  0,  0, 0,
-					0, ct2,-st2, 0, 
-					0, st2, ct2, 0,
-					0,  0,  0, 1 );							
-		
-		//ROTACION EN UN EJE PARALELO
-		var tempMatrix = new THREE.Matrix4();
-		tempMatrix.copyPosition( body.matrix );
-		cubo.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
-		cubo.applyMatrix(r);
-		cubo.applyMatrix( tempMatrix );
-                
-        
-        camera.lookAt( 0, 0, 0 );
+			var c = new THREE.Matrix4();
+            c.set( 1,0,0,25,
+                   0,1,0,25,
+                   0,0,1,0,
+                   0,0,0,1 );
+            plane2.applyMatrix(c); 
+            plane3.applyMatrix(c);
+            
+            var traslacion = 7;
+            var escala = 5;
+            var rotacion = 30;
+            var cct = Math.cos(rotacion);
+            var sst = Math.cos(rotacion);
+            
+            var t = new THREE.Matrix4();
+            t.set( escala*cct,0,sst,0
+                    0,1,0,0
+                    -sst,0,cct,traslacion,
+                    0,0,0,1);
+            plane3.applyMatrix(t);
+        }
+        function animated(){
+            render();
+            requestAnimationFrame( animated );
+        }
+        function render(){
+            plano.elementNeedUpdate = true;
+            camera.lookAt( 0, 0, 0 );
         renderer.render( scene, camera );
     }
     </script>

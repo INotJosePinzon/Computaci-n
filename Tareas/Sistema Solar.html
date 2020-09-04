@@ -22,6 +22,7 @@
     <script>
 		var scene, aspect, camera, renderer;
 		var Sol, Luna;
+        var Luna1,Luna2,Anillo;
 		var Mercurio, Venus, Tierra, Marte, Jupiter, Saturno, Urano, Neptuno, Pluton;
 		var startTime = Date.now();
         
@@ -209,6 +210,14 @@
             Luna= new THREE.Mesh( geometry9, materialLu);
             Luna.applyMatrix( new THREE.Matrix4().makeTranslation(2,2,2));
             
+            Luna1= new THREE.Mesh( geometry9, materialLu);
+            Luna1.applyMatrix( new THREE.Matrix4().makeTranslation(4,4,4));
+            Luna2= new THREE.Mesh( geometry9, materialLu);
+            Luna2.applyMatrix( new THREE.Matrix4().makeTranslation(-4,-4,-4));
+            
+            Anillo= new THREE.Mesh( geometry6, materialLu);
+            Anillo.applyMatrix( new THREE.Matrix4().makeScale(2,.1,3) );
+           
             
             //Unir todito
             Sol.add(Mercurio);
@@ -222,6 +231,10 @@
             Sol.add(Pluton);
             
             Tierra.add(Luna);
+            Jupiter.add(Luna1);
+            Jupiter.add(Luna2);
+            
+            Saturno.add(Anillo);
             
             
             
@@ -330,6 +343,15 @@
         
         Luna.applyMatrix(ry);
         Luna.applyMatrix(rx);
+        
+        Luna1.applyMatrix(ry);
+        Luna1.applyMatrix(rx);
+        
+        Luna2.applyMatrix(ry);
+        Luna2.applyMatrix(rx);
+        
+        Anillo.applyMatrix(ry);
+        
         Mercurio.applyMatrix(ry);
         Venus.applyMatrix(ry);
         Marte.applyMatrix(ry);
