@@ -24,22 +24,170 @@
     </div>
     <script src="js/three.min.js"></script>
     <script>
+        //
+        var views;
+        var windowWidth, windowHeight;
+        //
 		var scene, aspect, camera, renderer;
 		var startTime = Date.now();		
-		
+		var views = [
+				{
+                    //morado
+					left:0.3,
+                    bottom: 0,
+                    width: 0.4,
+                    height: 0.5,
+					background: new THREE.Color(0.5,0.2,0.7),
+					eye: [ 0, 0, 0],
+					up: [ 0, 1, 0 ],
+					fov: 60,
+					updateCamera: function ( camera, scene ) {
+                        camera.position.y += 0.04;
+                        camera.position.x += 0.02;
+                        camera.lookAt( scene.position );
+
+					}
+				},
+				{
+                    //verde
+                    left: 0,
+					bottom: 0,
+					width: 0.3,
+					height: 0.5,
+					background: new THREE.Color(0.2,0.7,0.2),
+					eye: [ 0, 0, -1 ],                    
+					up: [ 0, 1, 0 ],
+					fov: 60,
+					updateCamera: function ( camera, scene ) {
+					  camera.position.z -= 0.04;
+					  camera.lookAt( scene.position );
+					}
+				},
+				{
+                    //cian
+					left: 0.7,
+					bottom: 0,
+					width: 0.3,
+					height: 0.5,
+					background: new THREE.Color( 0.5, 0.7, 0.7 ),
+					eye: [ -180, 10, 0],
+					up: [ 0, 90, 1 ],
+					fov: 60,
+					updateCamera: function ( camera, scene) {
+
+					  
+					  camera.position.z += 0.04;
+					  camera.lookAt( scene.position );
+
+					}
+				},
+                {
+                    //azul
+                left: 0,
+                bottom: 0.5,
+                width:1,
+                height:0.5,
+                background: new THREE.Color( 0.2, 0.1, 0.6 ),
+                        eye: [ 140, 800, 140 ],
+                        up: [ 0, 1, 0],
+                        fov: 60,
+                        updateCamera: function ( camera, scene) {
+
+                          camera.position.y += 0.04;
+                          camera.position.z = Math.max( Math.min( camera.position.y, 1600 ), - 1600 );
+                          camera.lookAt( scene.position );
+
+                        }
+                }
+                ];
+        //
 		
 		init();
 		animate();
 	
 		function init(){
-			//INICIALIZACIÓN DE LA ESCENA
 			scene = new THREE.Scene();
-			scene.background = new THREE.Color( 0x93B8F2 );
+			//scene.background = new THREE.Color( 0x93B8F2 );
 			aspect = window.innerWidth / window.innerHeight;
 			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
 			renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
+            //
+            for ( var ii = 0; ii < views.length; ++ ii ) {
+
+					var view = views[ ii ];
+					var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
+					camera.position.fromArray( view.eye );
+					camera.up.fromArray( view.up );
+					view.camera = camera;
+
+				}
+            var onKeyDown = function ( event ) {
+				switch ( event.keyCode ) {
+					case 38: // TRASLADAR ADELANTE
+						upArrow = true;
+						break;
+					case 40: // TRASLADAR ATRÁS
+						downArrow = true;
+						break;
+					case 83: // ESCALA AGRANDAR
+						scaleUp = true;
+						break;
+					case 87: // ESCALA DISMINUIR
+						scaleDown = true;
+						break;
+					case 37: // ROTAR CW
+						leftArrow = true;
+						break;
+					case 39: // ROTAR CCW
+						rightArrow = true;
+						break;
+					case 88: // SELECCIONAR EJE X DE ROTACION
+						yAxis = false;
+						zAxis = false;
+						xAxis = true;
+						break;
+					case 89: // SELECCIONAR EJE Y DE ROTACION
+						xAxis = false;
+						zAxis = false;
+						yAxis = true;
+						break;
+					case 90: // SELECCIONAR EJE Z DE 
+						xAxis = false;
+						yAxis = false;
+						zAxis = true;
+						break;
+				}
+			};	  
+		  			
+			var onKeyUp = function ( event ) {
+				switch ( event.keyCode ) {
+					case 38: // TRASLADAR
+						upArrow = false;
+						break;
+					case 40: // TRASLADAR
+						downArrow = false;
+						break;
+					case 37: // ROTAR CW
+						leftArrow = false;
+						break;
+					case 39: // ROTAR CCW
+						rightArrow = false;
+						break;
+					case 83: // ESCALA AGRANDAR
+						scaleUp = false;
+						break;
+					case 87: // ESCALA DISMINUIR
+						scaleDown = false;
+						break;
+				}
+			};	  	
+			
+			document.addEventListener( 'keydown', onKeyDown, false );
+			document.addEventListener( 'keyup', onKeyUp, false );
+            
+            //
 				  			
 			
 			//ELEMENTOS DE ESCENA
@@ -307,10 +455,29 @@
 		  	camera.position.z = 130;			
 		  	camera.lookAt( origin );
 			
-			
+			renderer.render( scene, camera );
 
 			}
-    
+        //
+        function onDocumentMouseMove( event ) {
+
+				mouseX = ( event.clientX - windowWidth / 2 );
+				mouseY = ( event.clientY - windowHeight / 2 );
+
+        }
+        function updateSize() {
+
+				if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
+
+					windowWidth = window.innerWidth;
+					windowHeight = window.innerHeight;
+
+					renderer.setSize( windowWidth, windowHeight );
+
+				}
+
+			}
+        //
     function animate() {
         render();
         requestAnimationFrame( animate );
@@ -318,8 +485,36 @@
     
     function render(){
         var dtime = Date.now()-startTime;				
-        camera.lookAt( 0, 0, 0 );
-        renderer.render( scene, camera );
+        //camera.lookAt( 0, 0, 0 );
+        //renderer.render( scene, camera );
+        //
+        updateSize();
+
+				for ( var ii = 0; ii < views.length; ++ ii ) {
+
+					var view = views[ ii ];
+					var camera = view.camera;
+
+					view.updateCamera( camera, scene );
+
+					var left = Math.floor( windowWidth * view.left );
+					var bottom = Math.floor( windowHeight * view.bottom );
+					var width = Math.floor( windowWidth * view.width );
+					var height = Math.floor( windowHeight * view.height );
+
+					renderer.setViewport( left, bottom, width, height );
+					renderer.setScissor( left, bottom, width, height );
+					renderer.setScissorTest( true );
+					renderer.setClearColor( view.background );
+
+					camera.aspect = width / height;
+					camera.updateProjectionMatrix();
+
+					renderer.render( scene, camera );
+
+				}
+        //
+        
     }
     </script>
   </body>
