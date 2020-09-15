@@ -73,8 +73,10 @@
             
 			//geometrias
 			var geometry = new THREE.PlaneGeometry( 30, 30, 25 );
+            
             //material
             var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+            
             //objetos
             var plane = new THREE.Mesh( geometry, material );
             var plane2 = new THREE.Mesh( geometry, material );
@@ -108,7 +110,7 @@
             var escala = 5;
             var rotacion = 30;
             var cct = Math.cos(rotacion);
-            var sst = Math.cos(rotacion);
+            var sst = Math.sin(rotacion);
             
             var t = new THREE.Matrix4();
             t.set( escala*cct,0,sst,0

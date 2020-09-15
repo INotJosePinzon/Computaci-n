@@ -1,0 +1,326 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Game scene, Valorant</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+      #info {
+          position: absolute;
+          padding: 10px;
+          width: 100%;
+          text-align: center;
+          color: #FFFFFF;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">Video Game scene, Valorant
+	<br>
+	Referencia, Mapa de "Haven"
+	<br>
+	Hector Luque, Arturo Pinzón, Kevin Badrán
+	<br/>
+          <br/>
+    </div>
+    <script src="js/three.min.js"></script>
+    <script>
+		var scene, aspect, camera, renderer;
+		var startTime = Date.now();		
+		
+		
+		init();
+		animate();
+	
+		function init(){
+			//INICIALIZACIÓN DE LA ESCENA
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x93B8F2 );
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+				  			
+			
+			//ELEMENTOS DE ESCENA
+			var size = 200;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+			var colorRd = new THREE.Color( 0xAA6666 );
+		  	var colorGd = new THREE.Color( 0x66AA66 );
+		  	var colorBd = new THREE.Color( 0x6666AA );
+		  
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+            
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+			
+			//CREAR LAS GEOMETRÍAS
+			var geometry = new THREE.BoxGeometry(10, 10, 20, 20, 20, 20);
+			var geometry2 = new THREE.ConeGeometry( 5, 20, 32 );
+           
+            var material = new THREE.MeshBasicMaterial({color: 0x6D0394, wireframe: true});
+			var material2 = new THREE.MeshBasicMaterial({color: 0x898303, wireframe: true});
+			var material3 = new THREE.MeshBasicMaterial({color: 4E4900, wireframe: true});
+			var material4 = new THREE.MeshBasicMaterial( {color: 0x835E00, wireframe: true});
+			
+			
+			
+			
+            var CajaCentral = new THREE.Mesh(geometry, material);
+			CajaCentral.rotation.y +=20* Math.PI / 180
+			CajaCentral.translateY(5);
+			CajaCentral.translateX(10);
+            CajaCentral.translateZ(4);			
+			CajaCentral.applyMatrix( new THREE.Matrix4().makeScale(1.4,1.8,1.4) );
+			
+			
+			var CajaCentralAnadido= new THREE.Mesh(geometry, material);
+			CajaCentralAnadido.applyMatrix( new THREE.Matrix4().makeScale(.8,.8,.4) );
+			CajaCentralAnadido.translateZ(14);
+			CajaCentralAnadido.translateY(-1);
+            
+			var ParedL= new THREE.Mesh(geometry, material2);
+			ParedL.translateZ(109);
+			ParedL.translateX(1);
+			ParedL.applyMatrix( new THREE.Matrix4().makeScale(9,2,.4) );
+			ParedL.translateY(10);
+
+
+            var ColumnaL= new THREE.Mesh(geometry, material2);
+		    ColumnaL.applyMatrix( new THREE.Matrix4().makeScale(2.5,4,1.5) );
+		    ColumnaL.translateX(-48);
+			ColumnaL.translateZ(33);
+			ColumnaL.translateY(19);
+
+            var ParedIngreso= new THREE.Mesh(geometry, material2);
+		    ParedIngreso.applyMatrix( new THREE.Matrix4().makeScale(3,3.5,.4) );
+		    ParedIngreso.translateX(-48);
+			ParedIngreso.translateZ(-6);
+			ParedIngreso.translateY(16);
+			
+			var ParedIngresoLarga= new THREE.Mesh(geometry, material2);
+		    ParedIngresoLarga.applyMatrix( new THREE.Matrix4().makeScale(3,3.5,.4) );
+		    ParedIngresoLarga.translateX(-59);
+			ParedIngresoLarga.translateZ(-25);
+			ParedIngresoLarga.translateY(16);
+			ParedIngresoLarga.rotation.y +=90* Math.PI / 180
+
+
+            var ColumnaR= new THREE.Mesh(geometry, material2);
+		    ColumnaR.applyMatrix( new THREE.Matrix4().makeScale(1.3,3.5,.4) );
+		    ColumnaR.translateX(-48);
+			ColumnaR.translateZ(-36);
+			ColumnaR.translateY(16);
+
+          var CajasIngresoL = new THREE.Mesh(geometry, material);
+		   CajasIngresoL.applyMatrix( new THREE.Matrix4().makeScale(1,2,.8) );
+		  CajasIngresoL.translateX(-28);
+		  CajasIngresoL.translateY(9.5);
+		  CajasIngresoL.translateZ(-10);	  
+		  
+		   
+          var CajasIngresoR = new THREE.Mesh(geometry, material);
+		   CajasIngresoR.applyMatrix( new THREE.Matrix4().makeScale(1,2,.4) );
+		  CajasIngresoR.translateX(-38);
+		  CajasIngresoR.translateY(9.5);
+		  CajasIngresoR.translateZ(-14);
+		  
+		  
+		  var ParedIngresoCortaL= new THREE.Mesh(geometry, material2);
+		    ParedIngresoCortaL.applyMatrix( new THREE.Matrix4().makeScale(3,4,.4) );
+		    ParedIngresoCortaL.translateX(-47);
+			ParedIngresoCortaL.translateZ(-47);
+			ParedIngresoCortaL.translateY(16);
+			ParedIngresoCortaL.rotation.y +=90* Math.PI / 180
+			
+			var ParedIngresoCortaR= new THREE.Mesh(geometry, material2);
+		    ParedIngresoCortaR.applyMatrix( new THREE.Matrix4().makeScale(3,4,.6) );
+		    ParedIngresoCortaR.translateX(-15);
+			ParedIngresoCortaR.translateZ(-47);
+			ParedIngresoCortaR.translateY(16);
+			ParedIngresoCortaR.rotation.y +=90* Math.PI / 180
+			
+			 var CajasIngresoCorta = new THREE.Mesh(geometry, material);
+		   CajasIngresoCorta.applyMatrix( new THREE.Matrix4().makeScale(1,2,.5) );
+		  CajasIngresoCorta.translateX(-15);
+		  CajasIngresoCorta.translateY(9.5);
+		  CajasIngresoCorta.translateZ(-27);
+		  
+		  var ParedR= new THREE.Mesh(geometry, material2);
+			ParedR.translateZ(-146);
+			ParedR.translateX(3.3);
+			ParedR.applyMatrix( new THREE.Matrix4().makeScale(5,2,.4) );
+			ParedR.translateY(10);
+			
+		 var TechoEntradaR= new THREE.Mesh(geometry, material2);
+		    TechoEntradaR.applyMatrix( new THREE.Matrix4().makeScale(3,1.5,2.1) );
+		    TechoEntradaR.translateX(-30);
+			TechoEntradaR.translateZ(-47);
+			TechoEntradaR.translateY(42);
+			TechoEntradaR.rotation.y +=90* Math.PI / 180
+			
+			var ParedIngresoSpawnL= new THREE.Mesh(geometry, material2);
+		    ParedIngresoSpawnL.applyMatrix( new THREE.Matrix4().makeScale(2,3,.5) );
+		    ParedIngresoSpawnL.translateX(45);
+			ParedIngresoSpawnL.translateZ(-53);
+			ParedIngresoSpawnL.translateY(16);
+			ParedIngresoSpawnL.rotation.y +=90* Math.PI / 180
+			
+			
+		    var ParedIngresoSpawnR= new THREE.Mesh(geometry, material2);
+		    ParedIngresoSpawnR.applyMatrix( new THREE.Matrix4().makeScale(2,3,.5) );
+		    ParedIngresoSpawnR.translateX(70);
+			ParedIngresoSpawnR.translateZ(-53);
+			ParedIngresoSpawnR.translateY(16);
+			ParedIngresoSpawnR.rotation.y +=90* Math.PI / 180
+			
+				
+		 var TechoEntradaSpawn= new THREE.Mesh(geometry, material2);
+		    TechoEntradaSpawn.applyMatrix( new THREE.Matrix4().makeScale(2,1,1.8) );
+		    TechoEntradaSpawn.translateX(58);
+			TechoEntradaSpawn.translateZ(-53);
+			TechoEntradaSpawn.translateY(27);
+			TechoEntradaSpawn.rotation.y +=90* Math.PI / 180
+			
+		  var CajasIngresoSpawn = new THREE.Mesh(geometry, material);
+		  CajasIngresoSpawn.applyMatrix( new THREE.Matrix4().makeScale(1,2,.5) );
+		  CajasIngresoSpawn.translateX(69);
+		  CajasIngresoSpawn.translateY(10);
+		  CajasIngresoSpawn.translateZ(-18);
+		  
+		   var ParedIngresoSpawn= new THREE.Mesh(geometry, material2);
+		    ParedIngresoSpawn.applyMatrix( new THREE.Matrix4().makeScale(9.5,3,.5) );
+		    ParedIngresoSpawn.translateX(80);
+			ParedIngresoSpawn.translateZ(-15);
+			ParedIngresoSpawn.translateY(16);
+			ParedIngresoSpawn.rotation.y +=90* Math.PI / 180
+			
+			
+			var BaseHavenR= new THREE.Mesh(geometry, material2);
+		    BaseHavenR.applyMatrix( new THREE.Matrix4().makeScale(3,7,.4) );
+		    BaseHavenR.translateX(67);
+			BaseHavenR.translateZ(-12);
+			BaseHavenR.translateY(35);
+		
+		
+		    var BaseHavenL= new THREE.Mesh(geometry, material2);
+		    BaseHavenL.applyMatrix( new THREE.Matrix4().makeScale(3,7,.7) );
+		    BaseHavenL.translateX(67);
+			BaseHavenL.translateZ(40);
+			BaseHavenL.translateY(35);
+			
+			
+		  var CajaBaseHaven = new THREE.Mesh(geometry, material);
+		  CajaBaseHaven.applyMatrix( new THREE.Matrix4().makeScale(2,2,1) );
+		  CajaBaseHaven.translateX(69);
+		  CajaBaseHaven.translateY(10);
+		  CajaBaseHaven.translateZ(22);
+		  
+		   var balcon= new THREE.Mesh(geometry, material3);
+		    balcon.applyMatrix( new THREE.Matrix4().makeScale(3,1,2.2) );
+		    balcon.translateX(68);
+			balcon.translateZ(13);
+			balcon.translateY(32);
+			
+			
+			var TechoBalcon= new THREE.Mesh(geometry, material2);
+		    TechoBalcon.applyMatrix( new THREE.Matrix4().makeScale(3,1,2.9) );
+		    TechoBalcon.translateX(65);
+			TechoBalcon.translateZ(17);
+			TechoBalcon.translateY(65);
+			
+			var TechoColumnaL= new THREE.Mesh(geometry2, material4);			
+			TechoColumnaL.applyMatrix( new THREE.Matrix4().makeScale(3.5,.5,3.5) );
+			TechoColumnaL.translateY(45);
+			TechoColumnaL.translateX(-48);
+			TechoColumnaL.translateZ(33);
+			
+			var TechoColumnaR= new THREE.Mesh(geometry2, material4);			
+			TechoColumnaR.applyMatrix( new THREE.Matrix4().makeScale(4.5,.5,4.5) );
+			TechoColumnaR.translateY(55);
+			TechoColumnaR.translateX(-30);
+			TechoColumnaR.translateZ(-47);
+			
+			var TechoHaven= new THREE.Mesh(geometry2, material4);			
+			TechoHaven.applyMatrix( new THREE.Matrix4().makeScale(4.5,.5,6.5) );
+		    TechoHaven.translateX(65);
+			TechoHaven.translateZ(17);
+			TechoHaven.translateY(76);
+			
+		  	//AGREGAR A LA ESCENA
+            scene.add( gridHelperXZ );
+		  	scene.add( arrowX );	
+		  	scene.add( arrowY );	
+		  	scene.add( arrowZ );	
+			scene.add(CajaCentral);
+			CajaCentral.add(CajaCentralAnadido);
+			scene.add(ParedL);
+			scene.add(ColumnaL);
+			scene.add(ParedIngreso);
+			scene.add(ParedIngresoLarga);
+			scene.add(ColumnaR);
+			scene.add(CajasIngresoL);
+			scene.add(CajasIngresoR);
+			scene.add(ParedIngresoCortaL);
+			scene.add(ParedIngresoCortaR);
+			scene.add(CajasIngresoCorta);
+			scene.add(ParedR);
+			scene.add(TechoEntradaR);
+			scene.add(ParedIngresoSpawnL);
+			scene.add(ParedIngresoSpawnR);
+			scene.add(TechoEntradaSpawn);
+			scene.add(ParedIngresoSpawn);
+			scene.add(CajasIngresoSpawn);
+			scene.add(BaseHavenR);
+			scene.add(BaseHavenL);
+			scene.add(CajaBaseHaven);
+			scene.add(balcon);
+			scene.add(TechoBalcon);
+			scene.add(TechoColumnaL);
+			scene.add(TechoColumnaR);
+			scene.add(TechoHaven);
+			
+			//MOVER LA CÁMARA
+			camera.position.x = -130;
+			camera.position.y =150;	 
+		  	camera.position.z = 130;			
+		  	camera.lookAt( origin );
+			
+			
+
+			}
+    
+    function animate() {
+        render();
+        requestAnimationFrame( animate );
+    }
+    
+    function render(){
+        var dtime = Date.now()-startTime;				
+        camera.lookAt( 0, 0, 0 );
+        renderer.render( scene, camera );
+    }
+    </script>
+  </body>
+</html>
