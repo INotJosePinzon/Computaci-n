@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cubito</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+            #info {
+                position: absolute;
+                padding: 10px;
+                width: 100%;
+				text-align: left;
+                
+                color: #FFFFFF;
+    </style>
+  </head>
+  <body>
+    <div id="info">Creador de primitivas<br/>
+            Kevin Badrán<br/>
+            Computación Gráfica<br/>
+			<br>
+			<br>
+			
+			Por favor seleccione <br>
+			la primitiva que desea crear:
+			<br>
+			
+
+
+<a href="cilindro.html"><button name="button">Cilindro</button></a><br>
+<a href="cubo.html"><button name="button">Cubo</button></a><br>
+<a href="piràmide.html"><button name="button">Pirámide</button></a><br>
+<a href="toroide.html"><button name="button">Toroide</button></a><br>
+<a href="esfera.html"><button name="button">Esfera</button></a><br>
+Primitiva creada: Cubo
+
+<br><a href="CreadorPrimitivas.html"><button name="button">Volver al inicio</button></a><br>
+
+</select>
+
+        </div>
+		
+    <script src="js/three.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+    <script>
+		var scene, aspect, camera, renderer, controls;
+		
+		var startTime = Date.now();		
+		var upArrow = false;
+		var downArrow = false;
+		var object;
+		init();
+		animate();
+	
+		function init(){
+			//INICIALIZACIÓN DE LA ESCENA
+			scene = new THREE.Scene();
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+				  			
+			
+			
+			//ELEMENTOS DE ESCENA
+			var size = 10;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+			var color = new THREE.Color( 0xFF2D00 );
+		  
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+            
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+			
+			//CREAR LAS GEOMETRÍAS
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			for ( var i = 0; i < geometry.faces.length; i ++ ) {
+				switch(i){
+					case 0: case 1: geometry.faces[ i ].color = color; break;
+					case 2: case 3: geometry.faces[ i ].color = color; break;
+					case 4: case 5: geometry.faces[ i ].color = color; break;
+					case 6: case 7: geometry.faces[ i ].color = color; break;
+					case 8: case 9: geometry.faces[ i ].color = color; break;
+					case 10: case 11: geometry.faces[ i ].color = color; break;
+				}				
+			}
+             
+			//CREAR LOS MATERIALES
+           var material = new THREE.MeshBasicMaterial( { color: color1, vertexColors: THREE.FaceColors } );
+			
+			//CREAR LOS OBJETOS
+			cubito  = new THREE.Mesh( geometry, material );
+		
+		  	//AGREGAR A LA ESCENA
+            scene.add( gridHelperXZ );
+		  	scene.add( arrowX );	
+		  	scene.add( arrowY );	
+		  	scene.add( arrowZ );	
+			scene.add( cubito );
+			
+			//MOVER LA CÁMARA
+			camera.position.x = 5;
+			camera.position.y = 10;	 
+		  	camera.position.z =  10;			
+		  	camera.lookAt( origin );
+			}
+    
+    function animate() {
+        render();
+        
+		controls.update(); 
+        requestAnimationFrame( animate );	
+    }
+    
+    function render(){
+        var dtime = Date.now()-startTime;
+		
+        camera.lookAt( 0, 0, 0 );
+        renderer.render( scene, camera );
+    }
+    </script>
+  </body>
+</html>
