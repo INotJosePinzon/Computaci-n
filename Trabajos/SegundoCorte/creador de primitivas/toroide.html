@@ -18,9 +18,8 @@
   <body>
    <div id="info">Creador de primitivas<br/>
             Kevin Badrán<br/>
-            Computación Gráfica<br/>
-			<br>
-			<br>
+			<br>Jose Pinzón	<br>
+            <br>Hector Luque	<br>
 			
 			Por favor seleccione <br>
 			la primitiva que desea crear:
@@ -44,6 +43,8 @@ Primitiva creada: Toroide
 	
     <script src="js/three.js"></script>
 	<script src="js/controls/OrbitControls.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+    <script src='js/libs/stats.min.js'></script>
     <script>
 		var scene, aspect, camera, renderer, controls;
 		var startTime = Date.now();
@@ -169,6 +170,30 @@ Primitiva creada: Toroide
 		  	scene.add( arrowZ );	
 			scene.add( toroide );
 			
+            //ANGULOS DE ROTACION
+                var rotationAngles = {
+                    Eje_y: 0,
+                    Eje_x: 0,
+                    Eje_z: 0,
+					theta4: 0
+                };
+            var rotation = function () {
+                    angleX = THREE.Math.degToRad(rotationAngles.Eje_y);
+                    angleY = THREE.Math.degToRad(rotationAngles.Eje_x);
+                    angleZ = THREE.Math.degToRad(rotationAngles.Eje_z);
+                    render();
+                };
+            var rotation2 = function () {
+                    console.log(rotationAngles.theta4);
+                };
+            var gui = new dat.GUI();
+                gui.add(rotationAngles, "Eje_y", -180, 180, .1).onChange(rotation);
+                gui.add(rotationAngles, "Eje_x", -90, 90, 1).onChange(rotation);
+                gui.add(rotationAngles, "Eje_z", -90, 90, 1).onChange(rotation);
+				gui.add(rotationAngles, "theta4", -10, 10, 1).onChange(rotation2);
+
+                rotation();
+            //fin
 		
 		
 			
@@ -182,10 +207,14 @@ Primitiva creada: Toroide
     function animate() {
         render();
 		controls.update(); 
+        stats.update();
         requestAnimationFrame( animate );	
     }
     
     function render(){
+        var dtime = Date.now() - startTime;
+        var eulerRot = new THREE.Euler(angleX, angleY, angleZ, 'YZX');
+        toroide.setRotationFromEuler(eulerRot);
         renderer.render( scene, camera );
     }
     </script>

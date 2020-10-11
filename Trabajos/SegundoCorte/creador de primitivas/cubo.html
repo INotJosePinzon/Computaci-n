@@ -41,6 +41,8 @@ Primitiva creada: Cubo
 		
     <script src="js/three.js"></script>
 	<script src="js/controls/OrbitControls.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+    <script src='js/libs/stats.min.js'></script>
     <script>
 		var scene, aspect, camera, renderer, controls;
 		
@@ -119,6 +121,32 @@ Primitiva creada: Cubo
 		  	scene.add( arrowY );	
 		  	scene.add( arrowZ );	
 			scene.add( cubito );
+            
+            //ANGULOS DE ROTACION
+                var rotationAngles = {
+                    Eje_y: 0,
+                    Eje_x: 0,
+                    Eje_z: 0,
+					theta4: 0
+                };
+            var rotation = function () {
+                    angleX = THREE.Math.degToRad(rotationAngles.Eje_y);
+                    angleY = THREE.Math.degToRad(rotationAngles.Eje_x);
+                    angleZ = THREE.Math.degToRad(rotationAngles.Eje_z);
+                    render();
+                };
+            var rotation2 = function () {
+                    console.log(rotationAngles.theta4);
+                };
+            var gui = new dat.GUI();
+                gui.add(rotationAngles, "Eje_y", -180, 180, .1).onChange(rotation);
+                gui.add(rotationAngles, "Eje_x", -90, 90, 1).onChange(rotation);
+                gui.add(rotationAngles, "Eje_z", -90, 90, 1).onChange(rotation);
+				gui.add(rotationAngles, "theta4", -10, 10, 1).onChange(rotation2);
+
+                rotation();
+            //fin
+            
 			
 			//MOVER LA CÁMARA
 			camera.position.x = 5;
@@ -129,15 +157,15 @@ Primitiva creada: Cubo
     
     function animate() {
         render();
-        
+        stats.update();
 		controls.update(); 
         requestAnimationFrame( animate );	
     }
     
     function render(){
-        var dtime = Date.now()-startTime;
-		
-        camera.lookAt( 0, 0, 0 );
+        var dtime = Date.now() - startTime;
+        var eulerRot = new THREE.Euler(angleX, angleY, angleZ, 'YZX');
+        cubito.setRotationFromEuler(eulerRot);
         renderer.render( scene, camera );
     }
     </script>

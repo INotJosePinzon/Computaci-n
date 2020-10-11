@@ -17,6 +17,7 @@
   <body>
    <div id="info">Creador de primitivas<br/>
             Kevin Badrán<br/>
+            Jose Pinzón <br/>
             Computación Gráfica<br/>
 			<br>
 			<br>
@@ -41,13 +42,17 @@ Primitiva creada: Cilindro
         </div>
     <script src="js/three.js"></script>
 	<script src="js/controls/OrbitControls.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+    <script src='js/libs/stats.min.js'></script>
     <script>
 		var scene, aspect, camera, renderer, controls;
+		var radio = 2.0;
 		var startTime = Date.now();
 		var fan;
 		var strip;
 		var tapa;
 		var cont = 0;
+		var res = 20.0;
 		
 		var malla1;
 		var malla2;
@@ -89,7 +94,60 @@ Primitiva creada: Cilindro
 			return strip;
 		  }
 		}
+		var cilindrito=function(){
+		 
 		
+		var punto0 = new THREE.Vector3(0,2.01,0);	
+            var punto1 = new THREE.Vector3(0,0.01,0);			
+            var geometria = new THREE.Geometry();
+			var geometria2 = new THREE.Geometry();
+			var geometria3 = new THREE.Geometry();
+			//var radio = 2.0;
+			
+			geometria.vertices.push( punto0 );
+			geometria.vertices.push(punto1);
+            for( var i = 0; i <= res; i++){
+                var punto = new THREE.Vector3();
+				var punto2 = new THREE.Vector3();
+				punto.x = radio * Math.cos( ( 2 * Math.PI * i )/ res );
+                punto.y = 2;//me da la altura tapa del cilindro
+                punto.z = radio * Math.sin( ( 2 * Math.PI * i )/ res );
+				punto2.x = punto.x;
+				punto2.y = -2;//altura base del cilindro
+				punto2.z = punto.z;
+				
+				geometria.vertices.push( punto );
+				 geometria3.vertices.push( punto2 );	
+				geometria2.vertices.push( punto );
+				geometria2.vertices.push( punto2 );                	
+               				
+            }
+			
+			fan = new TRIANGLE_FAN(geometria);
+			tapa1 = fan.draw();
+			scene.add( tapa1 );
+			
+			fan = new TRIANGLE_FAN(geometria3);
+			base1 = fan.draw();
+            
+			tapa1.add( base1 );
+			
+			strip = new TRIANGLE_STRIP(geometria2);
+			cuerpo = strip.draw();
+            
+			tapa1.add( cuerpo );
+			
+			
+			
+			//CREAR LOS MATERIALES
+            var matLinea = new THREE.LineBasicMaterial( { color: 0xFFFFFF } );
+			
+			//CREAR LOS OBJETOS
+			var tapaa = new THREE.Line( geometria, matLinea );
+			var tubo = new THREE.Line( geometria2, matLinea );
+			tapa1.add( tapaa );
+			tapa1.add( tubo );
+}
 		init();
 		animate();
 	
@@ -101,7 +159,7 @@ Primitiva creada: Cilindro
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 			controls = new THREE.OrbitControls( camera, renderer.domElement );
-            				  
+            
 			var size = 10;
 			var arrowSize = 1;
 			var divisions = size;
@@ -141,62 +199,62 @@ Primitiva creada: Cilindro
 			
 			//CREAR LAS GEOMETRÍAS
             //Punto
-			var punto0 = new THREE.Vector3(0,2.01,0);	
-            var punto1 = new THREE.Vector3(0,0.01,0);			
-            var geometria = new THREE.Geometry();
-			var geometria2 = new THREE.Geometry();
-			var geometria3 = new THREE.Geometry();
-			var radio = 2.0;
-			var res = 20.0;
-			geometria.vertices.push( punto0 );
-			geometria.vertices.push(punto1);
-            for( var i = 0; i <= res; i++){
-                var punto = new THREE.Vector3();
-				var punto2 = new THREE.Vector3();
-				punto.x = radio * Math.cos( ( 2 * Math.PI * i )/ res );
-                punto.y = 2;//me da la altura tapa del cilindro
-                punto.z = radio * Math.sin( ( 2 * Math.PI * i )/ res );
-				punto2.x = punto.x;
-				punto2.y = -2;//altura base del cilindro
-				punto2.z = punto.z;
-				
-				geometria.vertices.push( punto );
-				 geometria3.vertices.push( punto2 );	
-				geometria2.vertices.push( punto );
-				geometria2.vertices.push( punto2 );                	
-               				
-            }
-			
-			fan = new TRIANGLE_FAN(geometria);
-			tapa1 = fan.draw();
-			scene.add( tapa1 );
-			
-			fan = new TRIANGLE_FAN(geometria3);
-			base1 = fan.draw();			
-			scene.add( base1 );
-			
-			strip = new TRIANGLE_STRIP(geometria2);
-			cuerpo = strip.draw();
-			scene.add( cuerpo );
 			
 			
+			cilindrito();
 			
-			//CREAR LOS MATERIALES
-            var matLinea = new THREE.LineBasicMaterial( { color: 0xFFFFFF } );
-			
-			//CREAR LOS OBJETOS
-			var cono = new THREE.Line( geometria, matLinea );
-			var tubo = new THREE.Line( geometria2, matLinea );
-			var base = new THREE.Line( geometria3, matLinea );
-		  	//AGREGAR A LA ESCENA
+		  	
+            //AGREGAR A LA ESCENA
 		  	
             scene.add( gridHelperXZ );
 		  	scene.add( arrowX );	
 		  	scene.add( arrowY );	
 		  	scene.add( arrowZ );	
-			/*scene.add( cono );
-			scene.add( tubo );
-			scene.add( base );*/
+			
+			
+			
+            
+            //ANGULOS DE ROTACION
+                var rotationAngles = {
+                    Eje_y: 0,
+                    Eje_x: 0,
+                    Eje_z: 0,
+					Radio: 0,
+					Res:0
+                };
+            var rotation = function () {
+                    angleX = THREE.Math.degToRad(rotationAngles.Eje_y);
+                    angleY = THREE.Math.degToRad(rotationAngles.Eje_x);
+                    angleZ = THREE.Math.degToRad(rotationAngles.Eje_z);
+                    render();
+                };
+				
+            var ChangeRadio = function () {
+			scene.remove(tapa1);
+                   radio=rotationAngles.Radio;
+				  cilindrito();
+				   
+                };
+				 var ChangeDivisions = function () {
+			scene.remove(tapa1);
+                   res=rotationAngles.Res;
+				  cilindrito();
+				   
+                };
+				
+            var gui = new dat.GUI();
+                gui.add(rotationAngles, "Eje_y", -180, 180, .1).onChange(rotation);
+                gui.add(rotationAngles, "Eje_x", -90, 90, 1).onChange(rotation);
+                gui.add(rotationAngles, "Eje_z", -90, 90, 1).onChange(rotation);
+				
+				
+				
+				gui.add(rotationAngles, "Radio", -8, 8, 1).onChange(ChangeRadio);
+				gui.add(rotationAngles, "Res", 6, 20, 1).onChange(ChangeDivisions);
+
+                rotation();
+                
+            //fin
 			
 			camera.position.x = 10;
 			camera.position.y = 10;	 
@@ -208,11 +266,17 @@ Primitiva creada: Cilindro
     function animate() {
         render();
 		controls.update(); 
+        
         requestAnimationFrame( animate );	
     }
     
     function render(){
+        
+        var dtime = Date.now() - startTime;
+        var eulerRot = new THREE.Euler(angleX, angleY, angleZ, 'YZX');
+        tapa1.setRotationFromEuler(eulerRot);
         renderer.render( scene, camera );
+        
     }
     </script>
   </body>
