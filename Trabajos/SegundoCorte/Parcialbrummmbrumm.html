@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parcial Jose Arturo Pinzón</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/csg.js"></script>
+	<script src="js/THREE.CSG.js"></script>
+    <script>
+		var scene, aspect, camera, renderer, controls;
+		init();
+		animate();
+		function init(){
+			//INICIALIZACIÓN
+	        scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x6464ff );
+	        aspect = window.innerWidth / window.innerHeight;
+	        camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+	        renderer = new THREE.WebGLRenderer();
+	        renderer.setSize( window.innerWidth, window.innerHeight );
+	        document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+			
+			//ELEMENTOS COMUNES
+			var size = 10;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+		  	var color = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+			
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size );
+			scene.add( axesHelper );
+			
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color, color );
+			scene.add( gridHelperXZ );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+
+            //CREAR ILUMINACIÓN
+            var ambient = new THREE.AmbientLight( 0xffffff, 1 );
+            scene.add( ambient );
+            
+            var pointLight1 = new THREE.PointLight( 0xffffff, .2, 100 );
+            pointLight1.position.set( 10, 10, -10 );
+            scene.add( pointLight1 );
+			
+			var pointLight2 = new THREE.PointLight( 0xffffff, .5, 100 );
+            pointLight2.position.set( 20, 20, 20 );
+            scene.add( pointLight2 );
+            
+            //punto 2
+            var curve2D = [];
+            
+                curve2D[0] = new THREE.Vector2(0,0.5);
+                curve2D[1] = new THREE.Vector2(1,5);
+                curve2D[2] = new THREE.Vector2(13,8);
+                curve2D[3] = new THREE.Vector2(20,11);
+                curve2D[4] = new THREE.Vector2(27,11);
+                curve2D[5] = new THREE.Vector2(38,8);
+                curve2D[6] = new THREE.Vector2(41,8);
+                curve2D[7] = new THREE.Vector2(42,3);
+                curve2D[8] = new THREE.Vector2(41,1);
+                curve2D[9] = new THREE.Vector2(38,1);	
+            /*
+                curve2D[10] = new THREE.Vector2(36,5);
+                curve2D[11] = new THREE.Vector2(31,5);
+                curve2D[12] = new THREE.Vector2(30,0);
+                curve2D[13] = new THREE.Vector2(12,0);
+                curve2D[14] = new THREE.Vector2(10.5,4.5);
+                curve2D[15] = new THREE.Vector2(5,5);
+            */
+                curve2D[10] = new THREE.Vector2(4,0);
+                
+				
+			var shape = new THREE.Shape();
+			shape.splineThru(curve2D);
+            
+            var material = new THREE.LineBasicMaterial( { color : 0x64ffff } );
+            var resolution = 50;
+            var points = shape.getPoints( resolution );
+            var geometry = new THREE.BufferGeometry().setFromPoints( points );
+            // Create the final object to add to the scene
+            var curveObject = new THREE.Line( geometry, material );
+            var curveObject2 = new THREE.Line( geometry, material );
+            
+			//EXTRUDE
+			var extrudeSettings = {
+				steps: 2,
+				amount: 18,
+				bevelEnabled: false,
+			};
+
+			var geometryExt = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+			var materialExt= new THREE.MeshStandardMaterial( { 
+				color: 0x6464ff, 
+				metalness: 0.5, 
+				roughness: 0.1,
+				opacity: 0.75,
+				transparent: false			
+			} );
+			
+			var carritu = new THREE.Mesh( geometryExt, materialExt ) ;
+            
+            //
+            var vidrios2D = [];
+            
+                vidrios2D[0] = new THREE.Vector2(0,0.5);
+                vidrios2D[1] = new THREE.Vector2(5.5,3);
+                vidrios2D[2] = new THREE.Vector2(16,1);
+                vidrios2D[3] = new THREE.Vector2(1.5,-1.5);
+            
+			var shapeV3D = new THREE.Shape();
+			shapeV3D.splineThru(vidrios2D);
+            
+            var materialV2D = new THREE.LineBasicMaterial( { color : 0x64ffff } );
+            var resolution = 50;
+            var pointsV2D = shapeV3D.getPoints( resolution );
+            var geometryV2D = new THREE.BufferGeometry().setFromPoints( pointsV2D );
+            var curveObjectV2D = new THREE.Line( geometryV2D, materialV2D );
+            
+			//EXTRUDE
+			var extrudeSettingsV = {
+				steps: 2,
+				amount: 20,
+				bevelEnabled: false,
+			};
+
+			var geometryV3D = new THREE.ExtrudeGeometry( shapeV3D, extrudeSettingsV );
+			var materialV3D= new THREE.MeshStandardMaterial( { 
+				color: 0x6464ff, 
+				metalness: 0.5, 
+				roughness: 0.1,
+				opacity: 0.75,
+				transparent: true			
+			} );
+            
+            var vidrios3d = new THREE.Mesh( geometryV3D, materialV3D ) ;
+            
+			//CREAR LAS GEOMETRÍAS
+
+            var geoLLant =  new THREE.CylinderGeometry( 1, 1, 1, 40 );
+            var geoLLant1 =  new THREE.CylinderGeometry( .6, .6, 1, 40 );
+
+            var geoRin =  new THREE.CylinderGeometry( .6, .6, 1, 32 );
+            var geoRin1 =  new THREE.CylinderGeometry( .4, .4, 1, 32 ); 
+
+            var geoEsfera = new THREE.SphereGeometry( .2, 3,15 );
+            var geoEsfera1 = new THREE.SphereGeometry( .2, 10,15 );
+            var geoRes =  new THREE.CylinderGeometry( .4, .4, .2, 32 ); 
+            
+            var vidrio = new THREE.BoxGeometry(25,4,16);
+            
+
+			//CREAR LOS MATERIALES
+            var matLLant = new THREE.MeshStandardMaterial( {color: 0x191919} );
+            var matRin = new THREE.MeshStandardMaterial({ 
+				color: 0x9c9c9c, 
+				metalness: 0.5, 
+				roughness: 0,
+				opacity: 0.75,
+                envMapIntensity: 1,
+				transparent: false			
+			} );
+            
+            var matCarritu = new THREE.MeshStandardMaterial({ 
+				color: 0xffffff, 
+				metalness: .5, 
+				roughness: 0,
+				opacity: 0.9,
+                envMapIntensity: 1,
+				transparent: false			
+			} );
+            
+            var matRestas = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+
+			//CREAR 
+            var llanta = new THREE.Mesh( geoLLant, matLLant );
+            var llanta1 = new THREE.Mesh( geoLLant1, matLLant );
+            
+            var rin = new THREE.Mesh( geoRin, matRin );
+            var rin1 = new THREE.Mesh( geoRin1, matRin );
+
+            var resta1 = new THREE.Mesh( geoEsfera, matRestas );
+            var resta2 = new THREE.Mesh( geoEsfera, matRestas );
+            var resta3 = new THREE.Mesh( geoEsfera, matRestas );
+            var resta4 = new THREE.Mesh( geoRes, matLLant );
+            
+            var resta5 = new THREE.Mesh( vidrio, matRestas );
+            
+            //detodito
+            resta1.applyMatrix( new THREE.Matrix4().makeScale(1.5,2,3) );
+            resta1.translateX( 0.3).translateZ( 0.25).translateY( 0.5);
+            resta1.rotateY(5.5);
+            
+            resta2.applyMatrix( new THREE.Matrix4().makeScale(1.5,2,3) );   
+            resta2.translateX(-0.3).translateZ(0.25).translateY( 0.5);   
+            resta2.rotateY(3.8);
+            
+            resta3.applyMatrix( new THREE.Matrix4().makeScale(1.5,2,3) ); 
+            resta3.translateX( 0).translateZ(-0.3).translateY( 0.5); 
+            resta3.rotateY(7.9);
+            
+            resta4.translateY(0.5);   
+            
+            resta5.translateX(24).translateY(8.5).translateZ(9);
+            //
+            vidrios3d.translateX(16).translateZ(-1).translateY(8);
+                
+            //CONVERTIR A CSG
+			var llCSG = THREE.CSG.fromMesh( llanta );
+			var ll2CSG =  THREE.CSG.fromMesh( llanta1 );
+            
+            var rCSG = THREE.CSG.fromMesh( rin );
+			var r2CSG =  THREE.CSG.fromMesh( rin1 );
+            
+            var b1CSG = THREE.CSG.fromMesh( resta1 );
+            var b2CSG = THREE.CSG.fromMesh( resta2 );
+            var b3CSG = THREE.CSG.fromMesh( resta3 );
+            var b4CSG = THREE.CSG.fromMesh( resta4 );
+            var b5CSG = THREE.CSG.fromMesh( resta5 );
+            var b6CSG = THREE.CSG.fromMesh( vidrios3d );
+            
+            var carrituCSG = THREE.CSG.fromMesh( carritu );
+            
+			//OPERACIONES
+			var result1 = llCSG.subtract( ll2CSG );
+            var result2 = rCSG.subtract( r2CSG );
+            var result3 = b4CSG.subtract( b1CSG ).subtract( b2CSG ).subtract( b3CSG );
+            
+            var result4 = carrituCSG.subtract( b5CSG ).subtract( b6CSG );
+            
+            
+			//CONVERTIR A MALLA DE THREE JS NUEVAMENTE
+			var llantaF = THREE.CSG.toMesh( result1 );
+			llantaF.material = matLLant; 
+            
+            var rinF = THREE.CSG.toMesh( result2 );
+			rinF.material = matRin;
+            
+            var tapaF = THREE.CSG.toMesh( result3 );
+			tapaF.material = matRin;
+            
+            var carrituF = THREE.CSG.toMesh( result4 );
+			carrituF.material = matCarritu;
+            
+            
+            //Clonar
+            var llanta1 = llantaF.clone();
+            var rinF1 = rinF.clone();
+            var tapa1 = tapaF.clone();
+            
+            var llanta2 = llantaF.clone();
+            var rinF2 = rinF.clone();
+            var tapa2 = tapaF.clone();
+            
+            var llanta3 = llantaF.clone();
+            var rinF3 = rinF.clone();
+            var tapa3 = tapaF.clone();
+            
+			//AGREGAR A LA ESCENA LOS DIFERENTES ELEMENTOS
+			
+            scene.add( carrituF );
+            carrituF.add( curveObject );
+            carrituF.add( curveObject2 );
+            curveObject2.translateZ(18);
+            
+            carrituF.add(llantaF);
+            llantaF.add(rinF);
+            llantaF.add( tapaF );
+            llantaF.applyMatrix( new THREE.Matrix4().makeScale(4,4,4) );
+            llantaF.rotateX(4.7);//90°
+            llantaF.translateX(7.5).translateZ(2);
+            rinF.translateY(.1)
+           
+            carrituF.add(llanta1);
+            llanta1.add(rinF1);
+            llanta1.add( tapa1 );
+            llanta1.applyMatrix( new THREE.Matrix4().makeScale(4,4,4) );
+            llanta1.rotateX(4.7);
+            llanta1.translateX(33.5).translateZ(2);
+            rinF1.translateY(.1)
+            
+            carrituF.add(llanta2);
+            llanta2.add(rinF2);
+            llanta2.add( tapa2 );
+            llanta2.applyMatrix( new THREE.Matrix4().makeScale(4,4,4) );
+            llanta2.rotateX(4.7).rotateZ(3.14);
+            llanta2.translateX(-33.5).translateY(18).translateZ(2);
+            rinF2.translateY(.1)
+            
+            carrituF.add(llanta3);
+            llanta3.add(rinF3);
+            llanta3.add( tapa3 );
+            llanta3.applyMatrix( new THREE.Matrix4().makeScale(4,4,4) );
+            llanta3.rotateX(4.7).rotateZ(3.14);
+            llanta3.translateX(-7.5).translateY(18).translateZ(2);
+            rinF3.translateY(.1)
+    
+            
+            
+
+			camera.position.x = 30;
+			camera.position.y = 30;
+		  	camera.position.z = 30;
+			camera.lookAt( origin );
+		}
+		function animate(){
+			requestAnimationFrame( animate );
+			controls.update();
+			render();
+		}
+		function render(){
+			renderer.render( scene, camera );
+		}
+    </script>
+  </body>
+</html>
