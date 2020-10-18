@@ -8,24 +8,49 @@
   </head>
   <body>
     <script src="js/three.js"></script>
-	<script src="js/controls/OrbitControls.js"></script>
 	<script src="js/csg.js"></script>
 	<script src="js/THREE.CSG.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
     <script>
 		var scene, aspect, camera, renderer, controls;
+        var carrituF, llantaF;
+        var llanta1 = new THREE.Mesh();
+        var llanta2 = new THREE.Mesh();
+        var llanta3 = new THREE.Mesh();
+        
+        
+        var upArrow = false;
+            var downArrow = false;
+            var leftArrow = false;
+            var rightArrow = false;
+            var scaleUp = false;
+            var scaleDown = false;
+            var xAxis = true;
+            var yAxis = false;
+            var zAxis = false;
+            var thetaSum=0;
+            var positivo=false;
+            var Frente = new THREE.Vector3( 0, 10, 10 );
+            w = window.innerWidth;
+            h= window.innerHeight;
+            
 		init();
 		animate();
 		function init(){
 			//INICIALIZACIÓN
 	        scene = new THREE.Scene();
-            scene.background = new THREE.Color( 0x6464ff );
+            scene.background = new THREE.Color( 0x202040 );
 	        aspect = window.innerWidth / window.innerHeight;
 	        camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+            cameranfs = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+            cameranfs1 = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+            cameranfs2 = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
 	        renderer = new THREE.WebGLRenderer();
 	        renderer.setSize( window.innerWidth, window.innerHeight );
 	        document.body.appendChild( renderer.domElement );
 			controls = new THREE.OrbitControls( camera, renderer.domElement );
-			
+			controls.enableKeys = false;
+            
 			//ELEMENTOS COMUNES
 			var size = 10;
 			var arrowSize = 1;
@@ -38,12 +63,13 @@
 		  	var colorR = new THREE.Color( 0xAA3333 );
 		  	var colorG = new THREE.Color( 0x33AA33 );
 		  	var colorB = new THREE.Color( 0x333366 );
+            
 			
 		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
 		  	var axesHelper = new THREE.AxesHelper( size );
 			scene.add( axesHelper );
 			
-		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color, color );
+		  	var gridHelperXZ = new THREE.GridHelper( size*50, divisions*2, color, color );
 			scene.add( gridHelperXZ );
             
             //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
@@ -53,13 +79,78 @@
             var ambient = new THREE.AmbientLight( 0xffffff, 1 );
             scene.add( ambient );
             
-            var pointLight1 = new THREE.PointLight( 0xffffff, .2, 100 );
-            pointLight1.position.set( 10, 10, -10 );
+            var pointLight1 = new THREE.PointLight( 0x0000ff, .2, 100 );
+            pointLight1.position.set( 10, 10, 10 );
             scene.add( pointLight1 );
 			
-			var pointLight2 = new THREE.PointLight( 0xffffff, .5, 100 );
+			var pointLight2 = new THREE.PointLight( 0x0000ff, .5, 100 );
             pointLight2.position.set( 20, 20, 20 );
             scene.add( pointLight2 );
+            
+            //EVENTOS DE TECLADO
+			var onKeyDown = function ( event ) {
+				switch ( event.keyCode ) {
+					case 38: // TRASLADAR ADELANTE
+						upArrow = true;
+						break;
+					case 40: // TRASLADAR ATRÁS
+						downArrow = true;
+						break;
+					case 83: // ESCALA AGRANDAR
+						scaleUp = true;
+						break;
+					case 87: // ESCALA DISMINUIR
+						scaleDown = true;
+						break;
+					case 37: // ROTAR CW
+						leftArrow = true;
+						break;
+					case 39: // ROTAR CCW
+						rightArrow = true;
+						break;
+					case 88: // SELECCIONAR EJE X DE ROTACION
+						yAxis = false;
+						zAxis = false;
+						xAxis = true;
+						break;
+					case 89: // SELECCIONAR EJE Y DE ROTACION
+						xAxis = false;
+						zAxis = false;
+						yAxis = true;
+						break;
+					case 90: // SELECCIONAR EJE Z DE 
+						xAxis = false;
+						yAxis = false;
+						zAxis = true;
+						break;
+				}
+			};	  
+		  			
+			var onKeyUp = function ( event ) {
+				switch ( event.keyCode ) {
+					case 38: // TRASLADAR
+						upArrow = false;
+						break;
+					case 40: // TRASLADAR
+						downArrow = false;
+						break;
+					case 37: // ROTAR CW
+						leftArrow = false;
+						break;
+					case 39: // ROTAR CCW
+						rightArrow = false;
+						break;
+					case 83: // ESCALA AGRANDAR
+						scaleUp = false;
+						break;
+					case 87: // ESCALA DISMINUIR
+						scaleDown = false;
+						break;
+				}
+			};	  	
+			
+			document.addEventListener( 'keydown', onKeyDown, false );
+			document.addEventListener( 'keyup', onKeyUp, false );
             
             //punto 2
             var curve2D = [];
@@ -74,6 +165,7 @@
                 curve2D[7] = new THREE.Vector2(42,3);
                 curve2D[8] = new THREE.Vector2(41,1);
                 curve2D[9] = new THREE.Vector2(38,1);	
+            
             /*
                 curve2D[10] = new THREE.Vector2(36,5);
                 curve2D[11] = new THREE.Vector2(31,5);
@@ -82,6 +174,7 @@
                 curve2D[14] = new THREE.Vector2(10.5,4.5);
                 curve2D[15] = new THREE.Vector2(5,5);
             */
+            
                 curve2D[10] = new THREE.Vector2(4,0);
                 
 				
@@ -188,7 +281,7 @@
 
 			//CREAR 
             var llanta = new THREE.Mesh( geoLLant, matLLant );
-            var llanta1 = new THREE.Mesh( geoLLant1, matLLant );
+            var llantaInt = new THREE.Mesh( geoLLant1, matLLant );
             
             var rin = new THREE.Mesh( geoRin, matRin );
             var rin1 = new THREE.Mesh( geoRin1, matRin );
@@ -221,7 +314,7 @@
                 
             //CONVERTIR A CSG
 			var llCSG = THREE.CSG.fromMesh( llanta );
-			var ll2CSG =  THREE.CSG.fromMesh( llanta1 );
+			var ll2CSG =  THREE.CSG.fromMesh( llantaInt );
             
             var rCSG = THREE.CSG.fromMesh( rin );
 			var r2CSG =  THREE.CSG.fromMesh( rin1 );
@@ -244,7 +337,7 @@
             
             
 			//CONVERTIR A MALLA DE THREE JS NUEVAMENTE
-			var llantaF = THREE.CSG.toMesh( result1 );
+			llantaF = THREE.CSG.toMesh( result1 );
 			llantaF.material = matLLant; 
             
             var rinF = THREE.CSG.toMesh( result2 );
@@ -253,20 +346,20 @@
             var tapaF = THREE.CSG.toMesh( result3 );
 			tapaF.material = matRin;
             
-            var carrituF = THREE.CSG.toMesh( result4 );
+            carrituF = THREE.CSG.toMesh( result4 );
 			carrituF.material = matCarritu;
             
             
             //Clonar
-            var llanta1 = llantaF.clone();
+            llanta1 = llantaF.clone();
             var rinF1 = rinF.clone();
             var tapa1 = tapaF.clone();
             
-            var llanta2 = llantaF.clone();
+            llanta2 = llantaF.clone();
             var rinF2 = rinF.clone();
             var tapa2 = tapaF.clone();
             
-            var llanta3 = llantaF.clone();
+            llanta3 = llantaF.clone();
             var rinF3 = rinF.clone();
             var tapa3 = tapaF.clone();
             
@@ -308,22 +401,158 @@
             llanta3.rotateX(4.7).rotateZ(3.14);
             llanta3.translateX(-7.5).translateY(18).translateZ(2);
             rinF3.translateY(.1)
-    
-            
-            
 
-			camera.position.x = 30;
-			camera.position.y = 30;
-		  	camera.position.z = 30;
+			camera.position.x = 60;
+			camera.position.y = 60;
+		  	camera.position.z = -60;
 			camera.lookAt( origin );
+            
+            cameranfs.position.x = -20;
+			cameranfs.position.y = 10;
+		  	cameranfs.position.z = -15;
+			cameranfs.lookAt( origin);
+            
+            carrituF.add(cameranfs);
+            
+            cameranfs1.position.x = 15;
+			cameranfs1.position.y = 10;
+		  	cameranfs1.position.z = 10;
+			cameranfs1.lookAt( Frente);
+            
+            carrituF.add(cameranfs1);
+            
+            cameranfs2.position.x = 65;
+			cameranfs2.position.y = 20;
+		  	cameranfs2.position.z = 10;
+			cameranfs2.lookAt( Frente);
+            
+            carrituF.add(cameranfs2);
+            
+          
 		}
+        
 		function animate(){
 			requestAnimationFrame( animate );
 			controls.update();
 			render();
 		}
 		function render(){
-			renderer.render( scene, camera );
+        
+		var tx=0, ty=0, tz=0;	//Variables para traslacion
+		var sc = 1;				//Variable para escala
+		var theta=0;			//Variable para ángulo de rotacion de piernas
+		var sigma=0;		    //Variable para ángulo de rotación de caderas
+        var su=1;
+        var a=1;
+        /*var fa=1;
+        var son=1;*/
+		
+		
+		if(upArrow) {
+			tx=-.5; ty=0; tz=0;
+            su = .5;
+            llantaF.rotateY(su);
+            llanta1.rotateY(su);
+            llanta2.rotateY(su);
+            llanta3.rotateY(su);
+		}
+        
+		if(downArrow) {
+			tx=.5; ty=0; tz=0;
+			a = .5;
+            llantaF.rotateY(a);
+            llanta1.rotateY(a);
+            llanta2.rotateY(a);
+            llanta3.rotateY(a);
+        }
+  
+		if(rightArrow){
+			sigma = -.1;
+        }
+		if(leftArrow){
+			sigma = .1;
+        }
+		//MATRIZ DE TRASLACIÓN
+		var t = new THREE.Matrix4();
+		t.set( 	1, 0, 0, tx,
+				0, 1, 0, ty, 
+				0, 0, 1, tz,
+				0, 0, 0, 1	);
+		
+		carrituF.matrix.multiply(t); 
+		
+		//ROTACIONES
+		var ct1 = Math.cos(theta);
+		var ct2 = Math.cos(-theta);
+		var cs = Math.cos(sigma);
+		var st1 = Math.sin(theta);
+		var st2 = Math.sin(-theta);
+		var ss = Math.sin(sigma);
+        var rx = new THREE.Matrix4();
+		var ry = new THREE.Matrix4();
+        var rz = new THREE.Matrix4();
+		var r1 = new THREE.Matrix4();
+		var r2 = new THREE.Matrix4();
+
+		//MATRIZ DE ROTACIÓN EN EJE x
+		rx.set(    cs,  0, ss, 0,
+					0,  1,  0, 0, 
+				  -ss,  0, cs, 0,
+					0,  0,  0, 1 );
+        //MATRIZ DE ROTACIÓN EN EJE y
+		ry.set(     1,  0,   0,  0,
+					0,  cs,  -ss, 0, 
+				    0,  ss, cs, 0,
+					0,  0,    0, 1 );	
+        //MATRIZ DE ROTACIÓN EN EJE z
+		rz.set(     cs, -ss, 0, 0,
+				    ss,  cs, 0, 0,
+                     0,   0, 1, 0,
+                     0,   0, 0, 1 );
+            
+            
+        
+		//MATRICES DE ROTACIÓN EN EJE LOCAL 	
+		r1.set( 	1,  0,  0, 0,
+					0, ct1,-st1, 0, 
+					0, st1, ct1, 0,
+					0,  0,  0, 1 );	
+            
+		r2.set( 	1,  0,  0, 0,
+					0, ct2,-st2, 0, 
+					0, st2, ct2, 0,
+					0,  0,  0, 1 );							
+		
+		//ROTACION EN UN EJE PARALELO
+		var tempMatrix = new THREE.Matrix4();
+		tempMatrix.copyPosition( carrituF.matrix );
+		carrituF.applyMatrix( new THREE.Matrix4().getInverse(tempMatrix) );
+		carrituF.applyMatrix(rx);
+		carrituF.applyMatrix( tempMatrix );
+            
+            renderer.setViewport( 0, 0, w, h );
+            renderer.setScissor( 0, 0, w, h );
+            renderer.setScissorTest( true );            
+            renderer.render( scene, camera );
+
+            renderer.setViewport( 2*(w/3), 2*(h/3), w/3, h/3 );
+            renderer.setScissor( 2*(w/3), 2*(h/3), w/3, h/3 );
+            renderer.setScissorTest( true );
+            renderer.render( scene, cameranfs );
+            
+            renderer.setViewport( 2*(w/3), 0, w/3, h/3 );
+            renderer.setScissor( 2*(w/3), 0, w/3, h/3 );
+            renderer.setScissorTest( true );
+            renderer.render( scene, cameranfs1 );
+            
+            renderer.setViewport( 0, 2*(h/3), w/3, h/3 );
+            renderer.setScissor( 0, 2*(h/3), w/3, h/3 );
+            renderer.setScissorTest( true );
+            renderer.render( scene, cameranfs2 );
+            
+            
+
+            
 		}
     </script>
   </body>
