@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Primera Entrega :D</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/csg.js"></script>
+	<script src="js/THREE.CSG.js"></script>
+    <script>
+		var scene, aspect, camera, renderer, controls;
+        var ARBOLITOME2,ARBOLITOME3,ARBOLITOME4,ARBOLITOME5,ARBOLITOME6,ARBOLITOME7,ARBOLITOME8;
+        
+        w = window.innerWidth;
+        h= window.innerHeight;
+    
+		init();
+		animate();
+		function init(){
+			//INICIALIZACIÓN
+	        scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x202040 );
+	        aspect = window.innerWidth / window.innerHeight;
+	        camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+            cameranfs = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+	        renderer = new THREE.WebGLRenderer();
+	        renderer.setSize( window.innerWidth, window.innerHeight );
+	        document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+            //IMPORTANTE
+			controls.enableKeys = false;
+            
+			
+			//ELEMENTOS COMUNES
+			var size = 100;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+		  	var color = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+			
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size/5 );
+			scene.add( axesHelper );
+			
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color, color );
+			scene.add( gridHelperXZ );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+
+            //CREAR ILUMINACIÓN
+            var ambient = new THREE.AmbientLight( 0xffffff, 1 );
+            scene.add( ambient );
+            
+            var pointLight1 = new THREE.PointLight( 0xffffff, .2, 100 );
+            pointLight1.position.set( 10, 10, -10 );
+            scene.add( pointLight1 );
+			
+			var pointLight2 = new THREE.PointLight( 0xffffff, .5, 100 );
+            pointLight2.position.set( 20, 20, 20 );
+            scene.add( pointLight2 );
+            
+            
+            //GEOMETRIAS
+            var restaCalle1 = new THREE.BoxGeometry( 150, 0.2, 150 , 150);
+            var restaCalle2 = new THREE.BoxGeometry( 40, 1, 25 , 10);
+            var restaCalle3 = new THREE.BoxGeometry( 20, 1, 25 , 10);
+            var ventana = new THREE.BoxGeometry( 4, 4, 4);
+            
+            //var ventana1 = new THREE.BoxGeometry( 4, 2, 4);
+            
+            //MATERIALES
+
+            var materialCallesita= new THREE.MeshStandardMaterial( { 
+				color: 0x9e9e9e, 
+				metalness: 0.8, 
+				roughness: 0.9,
+				opacity: 0.75,
+				side: THREE.DoubleSide,
+                transparent: false	
+                
+			} );
+            var materialEdifisito= new THREE.MeshStandardMaterial( { 
+				color: 0x7a5d5d, 
+				metalness: 0.5, 
+				roughness: 0.5,
+				opacity: 0.75,
+				side: THREE.DoubleSide,
+                transparent: false	
+                
+			} );
+        
+            var materialVentanita= new THREE.MeshStandardMaterial( { 
+				color: 0x00a6b6, 
+				metalness: 0.2, 
+				roughness: 0.2,
+				opacity: 0.5,
+				side: THREE.DoubleSide,
+                transparent: true	
+                
+			} );
+            
+           //CREACIÓN
+                //calles
+            var cll1 = new THREE.Mesh( restaCalle1, materialCallesita );
+            var cll2 = new THREE.Mesh( restaCalle2, materialCallesita );
+            var cll3 = new THREE.Mesh( restaCalle2, materialCallesita );
+            var cll4 = new THREE.Mesh( restaCalle2, materialCallesita );
+            var cll5 = new THREE.Mesh( restaCalle3, materialCallesita );
+            var cll6 = new THREE.Mesh( restaCalle2, materialCallesita );
+            var cll7 = new THREE.Mesh( restaCalle3, materialCallesita );
+            var cll8 = new THREE.Mesh( restaCalle2, materialCallesita );
+            var cll9 = new THREE.Mesh( restaCalle2, materialCallesita );
+            
+            cll2.position.x=30;
+            cll2.position.z=40;
+            cll3.position.x=30;
+            cll3.position.z=-30;
+            cll4.position.x=50;
+            cll4.position.z=5;
+            cll5.position.x=10;
+            cll5.position.z=5;
+            cll6.position.x=-50;
+            cll6.position.z=-30;
+            cll7.position.x=-10;
+            cll7.position.z=-30;
+            cll8.position.x=-30;
+            cll8.position.z=5;
+            cll9.position.x=-20;
+            cll9.position.z=40;
+            
+                //Edificios
+            var E2 = new THREE.Mesh( restaCalle2, materialEdifisito );
+            var E3 = new THREE.Mesh( restaCalle2, materialEdifisito );
+            var E4 = new THREE.Mesh( restaCalle2, materialEdifisito );
+            var E5 = new THREE.Mesh( restaCalle3, materialEdifisito );
+            var E6 = new THREE.Mesh( restaCalle2, materialEdifisito );
+            var E7 = new THREE.Mesh( restaCalle3, materialEdifisito );
+            var E8 = new THREE.Mesh( restaCalle2, materialEdifisito );
+            var E9 = new THREE.Mesh( restaCalle2, materialEdifisito );
+            
+            E2.applyMatrix( new THREE.Matrix4().makeScale(1,60,1) );
+            E2.position.x=30;
+            E2.position.y=30;
+            E2.position.z=40;
+            
+            E3.applyMatrix( new THREE.Matrix4().makeScale(1,25,1) );
+            E3.position.x=30;
+            E3.position.y=12;
+            E3.position.z=-30;
+            
+            E4.applyMatrix( new THREE.Matrix4().makeScale(1,40,1) );
+            E4.position.x=50;
+            E4.position.y=20;
+            E4.position.z=5;
+            
+            E5.applyMatrix( new THREE.Matrix4().makeScale(1,20,1) );
+            E5.position.x=10;
+            E5.position.y=10;
+            E5.position.z=5;
+            
+            E6.applyMatrix( new THREE.Matrix4().makeScale(1,50,1) );
+            E6.position.x=-50;
+            E6.position.y=25;
+            E6.position.z=-30;
+            
+            E7.applyMatrix( new THREE.Matrix4().makeScale(1,35,1) );
+            E7.position.x=-10;
+            E7.position.y=17.5;
+            E7.position.z=-30;
+            
+            E8.applyMatrix( new THREE.Matrix4().makeScale(1,30,1) );
+            E8.position.x=-30;
+            E8.position.y=15;
+            E8.position.z=5;
+            
+            E9.applyMatrix( new THREE.Matrix4().makeScale(1,80,1) );
+            E9.position.x=-20;
+            E9.position.y=40;
+            E9.position.z=40;
+            
+            //lerompolosvidrios
+           
+            var v = new THREE.Mesh( ventana, materialVentanita );
+            var v1= new THREE.Mesh( ventana, materialVentanita );
+            var v2= new THREE.Mesh( ventana, materialVentanita );
+            var v3= new THREE.Mesh( ventana, materialVentanita );
+            
+            
+            v.applyMatrix( new THREE.Matrix4().makeScale(1,20,1) );   
+            v.position.x=-20;
+            v.position.y=40;
+            v.position.z=40;
+
+            v1.applyMatrix( new THREE.Matrix4().makeScale(9,2,7) );
+            v1.position.x=-20;
+            v1.position.y=40;
+            v1.position.z=40;
+            
+            
+            v2.applyMatrix( new THREE.Matrix4().makeScale(9,2,7) );
+            v2.position.x=-20;
+            v2.position.y=20;
+            v2.position.z=40;
+            
+            v3.applyMatrix( new THREE.Matrix4().makeScale(9,2,7) );
+            v3.position.x=-20;
+            v3.position.y=60;
+            v3.position.z=40;
+            
+            //CSG
+            var k1CSG = THREE.CSG.fromMesh(cll1);
+            var k2CSG = THREE.CSG.fromMesh(cll2);
+            var k3CSG = THREE.CSG.fromMesh(cll3);
+            var k4CSG = THREE.CSG.fromMesh(cll4);
+            var k5CSG = THREE.CSG.fromMesh(cll5);
+            var k6CSG = THREE.CSG.fromMesh(cll6);
+            var k7CSG = THREE.CSG.fromMesh(cll7);
+            var k8CSG = THREE.CSG.fromMesh(cll8);
+            var k9CSG = THREE.CSG.fromMesh(cll9);
+            
+            var E2CSG = THREE.CSG.fromMesh(E2);
+            var E3CSG = THREE.CSG.fromMesh(E3);
+            var E4CSG = THREE.CSG.fromMesh(E4);
+            var E5CSG = THREE.CSG.fromMesh(E5);
+            var E6CSG = THREE.CSG.fromMesh(E6);
+            var E7CSG = THREE.CSG.fromMesh(E7);
+            var E8CSG = THREE.CSG.fromMesh(E8);
+            var E9CSG = THREE.CSG.fromMesh(E9);
+            
+            var vCSG = THREE.CSG.fromMesh(v);
+            var v1CSG = THREE.CSG.fromMesh(v1);
+            var v2CSG = THREE.CSG.fromMesh(v2);
+            var v3CSG = THREE.CSG.fromMesh(v3);
+            
+            //HACER OPERACION DE CSG
+
+            var result1 = k1CSG.subtract(k2CSG).subtract(k3CSG).subtract(k4CSG).subtract(k5CSG).subtract(k6CSG).subtract(k7CSG).subtract(k8CSG).subtract(k9CSG);
+            
+            var ARBOLITOME = vCSG.union(v1CSG).union(v2CSG).union(v3CSG);
+            
+            var result3 = ARBOLITOME.subtract(E9CSG);
+            var result4 = E9CSG.subtract(ARBOLITOME);
+            
+            //MATERIALES de CSG
+            var CallesitasOME = THREE.CSG.toMesh(result1);
+            CallesitasOME.material=materialCallesita;
+            
+            var arbustofeoOME = THREE.CSG.toMesh(ARBOLITOME);
+            
+            var CasitasOME = THREE.CSG.toMesh(result3);
+            CasitasOME.material=materialVentanita;
+            
+            var Casitas2OME = THREE.CSG.toMesh(result4);
+            Casitas2OME.material=materialEdifisito;
+            //CLONAR
+            ARBOLITOME2 = arbustofeoOME.clone();
+            ARBOLITOME2.applyMatrix( new THREE.Matrix4().makeScale(1,.5,1) );
+            ARBOLITOME2.position.x=50;
+            ARBOLITOME2.position.y=0;
+            ARBOLITOME2.position.z=0;
+            
+            ARBOLITOME3 = arbustofeoOME.clone();
+            ARBOLITOME3.applyMatrix( new THREE.Matrix4().makeScale(1,.2,1) );
+            ARBOLITOME3.position.x=50;
+            ARBOLITOME3.position.y=8;
+            ARBOLITOME3.position.z=-70;
+            
+            ARBOLITOME4 = arbustofeoOME.clone();
+            ARBOLITOME4.applyMatrix( new THREE.Matrix4().makeScale(1,.6,1) );
+            ARBOLITOME4.position.x=70;
+            ARBOLITOME4.position.y=0;
+            ARBOLITOME4.position.z=-35;
+            
+            ARBOLITOME5 = arbustofeoOME.clone();
+            ARBOLITOME5.applyMatrix( new THREE.Matrix4().makeScale(.7,.2,.8) );
+            ARBOLITOME5.position.x=25;
+            ARBOLITOME5.position.y=0;
+            ARBOLITOME5.position.z=-25;
+            
+            ARBOLITOME6 = arbustofeoOME.clone();
+            ARBOLITOME6.applyMatrix( new THREE.Matrix4().makeScale(1,.7,1) );
+            ARBOLITOME6.position.x=-35;
+            ARBOLITOME6.position.y=-8;
+            ARBOLITOME6.position.z=-70;
+            
+            ARBOLITOME7 = arbustofeoOME.clone();
+            ARBOLITOME7.applyMatrix( new THREE.Matrix4().makeScale(.7,.5,.7) );
+            ARBOLITOME7.position.x=5;
+            ARBOLITOME7.position.y=-8;
+            ARBOLITOME7.position.z=-58;
+            
+            ARBOLITOME8 = arbustofeoOME.clone();
+            ARBOLITOME8.applyMatrix( new THREE.Matrix4().makeScale(1,.4,1) );
+            ARBOLITOME8.position.x=-10;
+            ARBOLITOME8.position.y=-5;
+            ARBOLITOME8.position.z=-35;
+            //CSG vidrios 
+            var ARBOLITOME2CSG = THREE.CSG.fromMesh(ARBOLITOME2);
+            var ARBOLITOME3CSG = THREE.CSG.fromMesh(ARBOLITOME3);
+            var ARBOLITOME4CSG = THREE.CSG.fromMesh(ARBOLITOME4);
+            var ARBOLITOME5CSG = THREE.CSG.fromMesh(ARBOLITOME5);
+            var ARBOLITOME6CSG = THREE.CSG.fromMesh(ARBOLITOME6);
+            var ARBOLITOME7CSG = THREE.CSG.fromMesh(ARBOLITOME7);
+            var ARBOLITOME8CSG = THREE.CSG.fromMesh(ARBOLITOME8);
+            //HACER OPERACION DE CSG
+            var result5 = ARBOLITOME2CSG.subtract(E2CSG);
+            var result6 = E2CSG.subtract(ARBOLITOME2CSG);
+            
+            var result7 = ARBOLITOME3CSG.subtract(E3CSG);
+            var result8 = E3CSG.subtract(ARBOLITOME3CSG);
+            
+            var result9 = ARBOLITOME4CSG.subtract(E4CSG);
+            var result10 = E4CSG.subtract(ARBOLITOME4CSG);
+            
+            var result11 = ARBOLITOME5CSG.subtract(E5CSG);
+            var result12 = E5CSG.subtract(ARBOLITOME5CSG);
+            
+            var result13 = ARBOLITOME6CSG.subtract(E6CSG);
+            var result14 = E6CSG.subtract(ARBOLITOME6CSG);
+            
+            var result15 = ARBOLITOME7CSG.subtract(E7CSG);
+            var result16 = E7CSG.subtract(ARBOLITOME7CSG);
+            
+            var result17 = ARBOLITOME8CSG.subtract(E8CSG);
+            var result18 = E8CSG.subtract(ARBOLITOME8CSG);
+            //MATERIALES de CSG
+            var Casitas3OME = THREE.CSG.toMesh(result5);
+            Casitas3OME.material=materialVentanita;
+            var Casitas4OME = THREE.CSG.toMesh(result6);
+            Casitas4OME.material=materialEdifisito;
+            
+            var Casitas5OME = THREE.CSG.toMesh(result7);
+            Casitas5OME.material=materialVentanita;
+            var Casitas6OME = THREE.CSG.toMesh(result8);
+            Casitas6OME.material=materialEdifisito;
+            
+            var Casitas7OME = THREE.CSG.toMesh(result9);
+            Casitas7OME.material=materialVentanita;
+            var Casitas8OME = THREE.CSG.toMesh(result10);
+            Casitas8OME.material=materialEdifisito;
+            
+            var Casitas9OME = THREE.CSG.toMesh(result11);
+            Casitas9OME.material=materialVentanita;
+            var Casitas10OME = THREE.CSG.toMesh(result12);
+            Casitas10OME.material=materialEdifisito;
+            
+            var Casitas11OME = THREE.CSG.toMesh(result13);
+            Casitas11OME.material=materialVentanita;
+            var Casitas12OME = THREE.CSG.toMesh(result14);
+            Casitas12OME.material=materialEdifisito;
+            
+            var Casitas13OME = THREE.CSG.toMesh(result15);
+            Casitas13OME.material=materialVentanita;
+            var Casitas14OME = THREE.CSG.toMesh(result16);
+            Casitas14OME.material=materialEdifisito;
+            
+            var Casitas15OME = THREE.CSG.toMesh(result17);
+            Casitas15OME.material=materialVentanita;
+            var Casitas16OME = THREE.CSG.toMesh(result18);
+            Casitas16OME.material=materialEdifisito;
+            
+            //AGREGAR
+            scene.add(CallesitasOME);	
+                        
+            scene.add(CasitasOME);
+            scene.add(Casitas2OME);
+            scene.add(Casitas3OME);
+            scene.add(Casitas4OME);
+            scene.add(Casitas5OME);
+            scene.add(Casitas6OME);
+            scene.add(Casitas7OME);
+            scene.add(Casitas8OME);
+            scene.add(Casitas9OME);
+            scene.add(Casitas10OME);
+            scene.add(Casitas11OME);
+            scene.add(Casitas12OME);
+            scene.add(Casitas13OME);
+            scene.add(Casitas14OME);
+            scene.add(Casitas15OME);
+            scene.add(Casitas16OME);
+                      
+            //CAMARAS
+            camera.position.x = 60;
+			camera.position.y = 60;
+		  	camera.position.z = -60;
+			camera.lookAt( origin );
+            
+            cameranfs.position.x = 25;
+			cameranfs.position.y = 25;
+		  	cameranfs.position.z = 25;
+			cameranfs.lookAt( origin);
+            
+            
+		}
+		function animate(){
+            
+			requestAnimationFrame( animate );
+			controls.update();
+			render();
+		}
+        
+		function render(){            
+            renderer.setViewport( 0, 0, w, h );
+            renderer.setScissor( 0, 0, w, h );
+            renderer.setScissorTest( true );            
+            renderer.render( scene, camera );
+
+            renderer.setViewport( 2*(w/3), 2*(h/3), w/3, h/3 );
+            renderer.setScissor( 2*(w/3), 2*(h/3), w/3, h/3 );
+            renderer.setScissorTest( true );
+            renderer.render( scene, cameranfs );
+            
+            
+            
+		}
+    </script>
+  </body>
+</html>
