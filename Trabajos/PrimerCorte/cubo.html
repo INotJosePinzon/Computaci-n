@@ -27,7 +27,7 @@
 		var tempMatrix;
 		var flag = 0;
 		init();
-		animate();
+		//animate();
 	
 		function init(){
 			//INICIALIZACIÓN DE LA ESCENA
@@ -113,8 +113,8 @@
             var sst = Math.sin(rotacion);
             
             var t = new THREE.Matrix4();
-            t.set( escala*cct,0,sst,0
-                    0,1,0,0
+            t.set( escala*cct,0,sst,0,
+                    0,1,0,0,
                     -sst,0,cct,traslacion,
                     0,0,0,1);
             plane3.applyMatrix(t);

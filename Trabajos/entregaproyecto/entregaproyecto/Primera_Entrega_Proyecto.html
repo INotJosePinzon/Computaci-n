@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WASE</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+      #info {
+          position: absolute;
+          padding: 10px;
+          width: 100%;
+          text-align: center;
+          color: #FFFFFF;
+      }
+    </style>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="info">
+	Hector Luque, Arturo Pinzón, Kevin Badrán
+	<br/>
+          <br/>
+    </div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+        <script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+        <script src="https://threejs.org/examples/js/controls/PointerLockControls.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/csg.js"></script>
+    <script src="js/THREE.CSG.js"></script>
+
+        <div id="blocker" >
+        
+            <div id="instructions" class="interfaz">
+                <span style="font-size:120px">WASE</span>
+                <br />
+                <b>Click para empezar</b>
+                <br><br>
+                ***descripcion**
+            </div>
+        
+        </div>
+    <script>
+
+    </script>
+    <script>
+        class Figuras{
+
+           static señalDeTransito(x, z, rotacion) { // el tercer parametro es un boleano, verdadero rota 90° y false no rota
+               var angulo=0;
+                if (rotacion) {
+                    angulo= Math.PI / 2
+                }
+                //CREAR LAS GEOMETRÍAS
+                
+                var cubeGeo = new THREE.PlaneGeometry(5, 5, 0.2);
+                var cylinderGeometry = new THREE.CylinderGeometry(0.08, 0.2, 7, 5);
+                //CREAR LOS MATERIALES
+                var materialPalo = new THREE.MeshLambertMaterial({color:'gray' })
+                var texture = new THREE.TextureLoader().load("textures/cruzar.png");
+                // texture.repeat.set(1, 1);
+                var materialSeñal = new THREE.MeshLambertMaterial({ map: texture, side: THREE.DoubleSide });
+                var señal= new THREE.Mesh(cubeGeo, materialSeñal);
+                var palo= new THREE.Mesh(cylinderGeometry, materialPalo);
+                palo.position.set(0,3.5,0);
+                señal.position.set(0,10,0);
+                palo.castShadow = true;
+                señal.castShadow =true;
+                señal.rotateZ(Math.PI/4);
+
+                var señalTotal = new THREE.Group();
+
+                señalTotal.add(señal);
+                señalTotal.add(palo);
+
+                señalTotal.position.set(x, 0, z);
+                señalTotal.rotateY(angulo);
+                scene.add(señalTotal);
+            }
+        
+
+            static arbolitosOme(x, z){
+                var curve2D = [];
+                curve2D[0] = new THREE.Vector2(0.7, 0);
+                curve2D[1] = new THREE.Vector2(0.8, 7);
+                curve2D[2] = new THREE.Vector2(7, 8);
+                curve2D[3] = new THREE.Vector2(9, 10);
+                curve2D[4] = new THREE.Vector2(0, 30);
+
+
+                var shape = new THREE.Shape();
+
+                shape.moveTo(0, 0);
+                shape.splineThru(curve2D);
+
+                var resolution = 50;
+                var points = shape.getPoints(resolution);
+
+                var geometry = new THREE.LatheGeometry(points, 10);
+                var material = new THREE.MeshLambertMaterial({color:'green'});
+
+                const geometryCil = new THREE.CylinderGeometry(0.8, 0.8, 15, 32);
+                const materialCil = new THREE.MeshLambertMaterial({ color: 0x725f0a });
+                const cylinder = new THREE.Mesh(geometryCil, materialCil);
+                // cylinder.castShadow = true;
+                var lathe = new THREE.Mesh(geometry, material);
+                lathe.castShadow= true;
+                var arbol = new THREE.Group();
+                arbol.add(lathe);
+                arbol.add(cylinder);
+                arbol.position.set(x,0, z);
+                scene.add(arbol);
+                return arbol;
+            }
+
+            static Edificios(){
+                // TEXTURA PISO
+                var texture = new THREE.TextureLoader().load("textures/3.png");
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(8, 8);
+                var materialCallesita = new THREE.MeshLambertMaterial({ map: texture });
+                var cll1 = new THREE.Mesh(new THREE.BoxGeometry(500, 0.2, 500, 150), materialCallesita);
+                cll1.receiveShadow = true;
+                // cll1.castShadow = true;
+                scene.add(cll1)
+            // LAS TEXTURAS NO SE CARGARAN EN SERVIDORES LOCALES
+                //GEOMETRIAS
+                var restaCalle1 = new THREE.BoxGeometry(450, 0.2, 400, 150);
+                var restaCalle2 = new THREE.BoxGeometry(40, 1, 25, 10);
+                var restaCalle3 = new THREE.BoxGeometry(20, 1, 25, 10);
+                var ventana = new THREE.BoxGeometry(4, 4, 4);
+
+                //var ventana1 = new THREE.BoxGeometry( 4, 2, 4);
+
+
+                //MATERIALES
+
+                function materialEdifisito() {
+
+                    var colorRandom;
+
+
+                    var n = Math.floor(Math.random() * 6);
+                    switch (n) {
+                        case 0: colorRandom = new THREE.Color(0x1C1234);
+                            break;
+                        case 1: colorRandom = new THREE.Color(0x514E57);
+                            break;
+                        case 2: colorRandom = new THREE.Color(0x776B73);
+                            break;
+                        case 3: colorRandom = new THREE.Color(0x803B38);
+                            break;
+                        case 4: colorRandom = new THREE.Color(0x537B0E);
+                            break;
+                        case 5: colorRandom = new THREE.Color(0x0C6164);
+                            break;
+                    }
+
+                    var materialEdifisito = new THREE.MeshStandardMaterial({
+                        color: colorRandom,
+                        metalness: 0.5,
+                        roughness: 0.5,
+                        opacity: 0.75,
+                        side: THREE.DoubleSide,
+                        transparent: false
+
+                    });
+
+                    return materialEdifisito;
+                }
+
+
+                var materialVentanita = new THREE.MeshStandardMaterial({
+                    color: 0x00a6b6,
+                    metalness: 0.2,
+                    roughness: 0.2,
+                    opacity: 0.5,
+                    side: THREE.DoubleSide,
+                    transparent: true
+
+                });
+                //CREACIÓN
+                //calles
+                
+                //Edificios
+                var E2 = new THREE.Mesh(restaCalle2, materialEdifisito());
+                var E3 = new THREE.Mesh(restaCalle2, materialEdifisito());
+                var E4 = new THREE.Mesh(restaCalle2, materialEdifisito());
+                var E5 = new THREE.Mesh(restaCalle3, materialEdifisito());
+                var E6 = new THREE.Mesh(restaCalle2, materialEdifisito());
+                var E7 = new THREE.Mesh(restaCalle3, materialEdifisito());
+                var E8 = new THREE.Mesh(restaCalle2, materialEdifisito());
+                var E9 = new THREE.Mesh(restaCalle2, materialEdifisito());
+
+                E2.applyMatrix4(new THREE.Matrix4().makeScale(1, 60, 1));
+                E2.position.x = 30;
+                E2.position.y = 30;
+                E2.position.z = 40;
+
+                E3.applyMatrix4(new THREE.Matrix4().makeScale(1, 25, 1));
+                E3.position.x = 30;
+                E3.position.y = 12;
+                E3.position.z = -30;
+
+                E4.applyMatrix4(new THREE.Matrix4().makeScale(1, 40, 1));
+                E4.position.x = 50;
+                E4.position.y = 20;
+                E4.position.z = 5;
+
+                E5.applyMatrix4(new THREE.Matrix4().makeScale(1, 20, 1));
+                E5.position.x = 10;
+                E5.position.y = 10;
+                E5.position.z = 5;
+
+                E6.applyMatrix4(new THREE.Matrix4().makeScale(1, 50, 1));
+                E6.position.x = -50;
+                E6.position.y = 25;
+                E6.position.z = -30;
+
+                E7.applyMatrix4(new THREE.Matrix4().makeScale(1, 35, 1));
+                E7.position.x = -10;
+                E7.position.y = 17.5;
+                E7.position.z = -30;
+
+                E8.applyMatrix4(new THREE.Matrix4().makeScale(1, 30, 1));
+                E8.position.x = -30;
+                E8.position.y = 15;
+                E8.position.z = 5;
+
+                E9.applyMatrix4(new THREE.Matrix4().makeScale(1, 80, 1));
+                E9.position.x = -20;
+                E9.position.y = 40;
+                E9.position.z = 40;
+
+                //lerompolosvidrios
+
+                var v = new THREE.Mesh(ventana, materialVentanita);
+                var v1 = new THREE.Mesh(ventana, materialVentanita);
+                var v2 = new THREE.Mesh(ventana, materialVentanita);
+                var v3 = new THREE.Mesh(ventana, materialVentanita);
+
+
+                v.applyMatrix4(new THREE.Matrix4().makeScale(1, 20, 1));
+                v.position.x = -20;
+                v.position.y = 40;
+                v.position.z = 40;
+
+                v1.applyMatrix4(new THREE.Matrix4().makeScale(9, 2, 7));
+                v1.position.x = -20;
+                v1.position.y = 40;
+                v1.position.z = 40;
+
+
+                v2.applyMatrix4(new THREE.Matrix4().makeScale(9, 2, 7));
+                v2.position.x = -20;
+                v2.position.y = 20;
+                v2.position.z = 40;
+
+                v3.applyMatrix4(new THREE.Matrix4().makeScale(9, 2, 7));
+                v3.position.x = -20;
+                v3.position.y = 60;
+                v3.position.z = 40;
+
+                //CSG
+
+                var E2CSG = THREE.CSG.fromMesh(E2);
+                var E3CSG = THREE.CSG.fromMesh(E3);
+                var E4CSG = THREE.CSG.fromMesh(E4);
+                var E5CSG = THREE.CSG.fromMesh(E5);
+                var E6CSG = THREE.CSG.fromMesh(E6);
+                var E7CSG = THREE.CSG.fromMesh(E7);
+                var E8CSG = THREE.CSG.fromMesh(E8);
+                var E9CSG = THREE.CSG.fromMesh(E9);
+
+                var vCSG = THREE.CSG.fromMesh(v);
+                var v1CSG = THREE.CSG.fromMesh(v1);
+                var v2CSG = THREE.CSG.fromMesh(v2);
+                var v3CSG = THREE.CSG.fromMesh(v3);
+
+                //HACER OPERACION DE CSG
+
+                var ARBOLITOME = vCSG.union(v1CSG).union(v2CSG).union(v3CSG);
+
+                var result3 = ARBOLITOME.subtract(E9CSG);
+                var result4 = E9CSG.subtract(ARBOLITOME);
+
+
+                var arbustofeoOME = THREE.CSG.toMesh(ARBOLITOME);
+
+                var CasitasOME = THREE.CSG.toMesh(result3);
+                CasitasOME.material = materialVentanita;
+
+                var Casitas2OME = THREE.CSG.toMesh(result4);
+                Casitas2OME.material = materialEdifisito();
+
+                //CLONAR
+                ARBOLITOME2 = arbustofeoOME.clone();
+                ARBOLITOME2.applyMatrix4(new THREE.Matrix4().makeScale(1, .6, 1));
+                ARBOLITOME2.position.x = 50;
+                ARBOLITOME2.position.y = 0;
+                ARBOLITOME2.position.z = 0;
+
+                ARBOLITOME3 = arbustofeoOME.clone();
+                ARBOLITOME3.applyMatrix4(new THREE.Matrix4().makeScale(1, .2, 1));
+                ARBOLITOME3.position.x = 50;
+                ARBOLITOME3.position.y = 8;
+                ARBOLITOME3.position.z = -70;
+
+                ARBOLITOME4 = arbustofeoOME.clone();
+                ARBOLITOME4.applyMatrix4(new THREE.Matrix4().makeScale(1, .6, 1));
+                ARBOLITOME4.position.x = 70;
+                ARBOLITOME4.position.y = 0;
+                ARBOLITOME4.position.z = -35;
+
+                ARBOLITOME5 = arbustofeoOME.clone();
+                ARBOLITOME5.applyMatrix4(new THREE.Matrix4().makeScale(.7, .2, .8));
+                ARBOLITOME5.position.x = 25;
+                ARBOLITOME5.position.y = 0;
+                ARBOLITOME5.position.z = -25;
+
+                ARBOLITOME6 = arbustofeoOME.clone();
+                ARBOLITOME6.applyMatrix4(new THREE.Matrix4().makeScale(1, .7, 1));
+                ARBOLITOME6.position.x = -35;
+                ARBOLITOME6.position.y = -8;
+                ARBOLITOME6.position.z = -70;
+
+                ARBOLITOME7 = arbustofeoOME.clone();
+                ARBOLITOME7.applyMatrix4(new THREE.Matrix4().makeScale(.7, .5, .7));
+                ARBOLITOME7.position.x = 5;
+                ARBOLITOME7.position.y = -8;
+                ARBOLITOME7.position.z = -58;
+
+                ARBOLITOME8 = arbustofeoOME.clone();
+                ARBOLITOME8.applyMatrix4(new THREE.Matrix4().makeScale(1, .4, 1));
+                ARBOLITOME8.position.x = -10;
+                ARBOLITOME8.position.y = -5;
+                ARBOLITOME8.position.z = -35;
+                //CSG vidrios 
+                var ARBOLITOME2CSG = THREE.CSG.fromMesh(ARBOLITOME2);
+                var ARBOLITOME3CSG = THREE.CSG.fromMesh(ARBOLITOME3);
+                var ARBOLITOME4CSG = THREE.CSG.fromMesh(ARBOLITOME4);
+                var ARBOLITOME5CSG = THREE.CSG.fromMesh(ARBOLITOME5);
+                var ARBOLITOME6CSG = THREE.CSG.fromMesh(ARBOLITOME6);
+                var ARBOLITOME7CSG = THREE.CSG.fromMesh(ARBOLITOME7);
+                var ARBOLITOME8CSG = THREE.CSG.fromMesh(ARBOLITOME8);
+                //HACER OPERACION DE CSG
+                var result5 = ARBOLITOME2CSG.subtract(E2CSG);
+                var result6 = E2CSG.subtract(ARBOLITOME2CSG);
+
+                var result7 = ARBOLITOME3CSG.subtract(E3CSG);
+                var result8 = E3CSG.subtract(ARBOLITOME3CSG);
+
+                var result9 = ARBOLITOME4CSG.subtract(E4CSG);
+                var result10 = E4CSG.subtract(ARBOLITOME4CSG);
+
+                var result11 = ARBOLITOME5CSG.subtract(E5CSG);
+                var result12 = E5CSG.subtract(ARBOLITOME5CSG);
+
+                var result13 = ARBOLITOME6CSG.subtract(E6CSG);
+                var result14 = E6CSG.subtract(ARBOLITOME6CSG);
+
+                var result15 = ARBOLITOME7CSG.subtract(E7CSG);
+                var result16 = E7CSG.subtract(ARBOLITOME7CSG);
+
+                var result17 = ARBOLITOME8CSG.subtract(E8CSG);
+                var result18 = E8CSG.subtract(ARBOLITOME8CSG);
+                //MATERIALES de CSG
+                var Casitas3OME = THREE.CSG.toMesh(result5);
+                Casitas3OME.material = materialVentanita;
+                var Casitas4OME = THREE.CSG.toMesh(result6);
+                Casitas4OME.material = materialEdifisito();
+
+                var Casitas5OME = THREE.CSG.toMesh(result7);
+                Casitas5OME.material = materialVentanita;
+                var Casitas6OME = THREE.CSG.toMesh(result8);
+                Casitas6OME.material = materialEdifisito();
+
+                var Casitas7OME = THREE.CSG.toMesh(result9);
+                Casitas7OME.material = materialVentanita;
+                var Casitas8OME = THREE.CSG.toMesh(result10);
+                Casitas8OME.material = materialEdifisito();
+
+                var Casitas9OME = THREE.CSG.toMesh(result11);
+                Casitas9OME.material = materialVentanita;
+                var Casitas10OME = THREE.CSG.toMesh(result12);
+                Casitas10OME.material = materialEdifisito();
+
+                var Casitas11OME = THREE.CSG.toMesh(result13);
+                Casitas11OME.material = materialVentanita;
+                var Casitas12OME = THREE.CSG.toMesh(result14);
+                Casitas12OME.material = materialEdifisito();
+
+                var Casitas13OME = THREE.CSG.toMesh(result15);
+                Casitas13OME.material = materialVentanita;
+                var Casitas14OME = THREE.CSG.toMesh(result16);
+                Casitas14OME.material = materialEdifisito();
+
+                var Casitas15OME = THREE.CSG.toMesh(result17);
+                Casitas15OME.material = materialVentanita;
+                var Casitas16OME = THREE.CSG.toMesh(result18);
+                Casitas16OME.material = materialEdifisito();
+
+                Casitas2OME.castShadow = true;
+                Casitas2OME.receiveShadow= true;
+                Casitas4OME.castShadow = true;
+                Casitas4OME.receiveShadow= true;
+                Casitas6OME.castShadow = true;
+                Casitas6OME.receiveShadow= true;
+                Casitas8OME.castShadow = true;
+                Casitas8OME.receiveShadow= true;
+                Casitas10OME.castShadow = true;
+                Casitas10OME.receiveShadow= true;
+                Casitas11OME.castShadow = true;
+                Casitas11OME.receiveShadow= true;
+                Casitas12OME.castShadow = true;
+                Casitas12OME.receiveShadow= true;
+                Casitas14OME.castShadow = true;
+                Casitas14OME.receiveShadow= true;
+                Casitas16OME.castShadow = true;
+                Casitas16OME.receiveShadow= true;
+
+                //AGREGAR
+                // scene.add(CallesitasOME);	
+                var manzana = new THREE.Group();
+
+                manzana.add(CasitasOME);
+                manzana.add(Casitas2OME);
+                manzana.add(Casitas3OME);
+                manzana.add(Casitas4OME);
+                manzana.add(Casitas5OME);
+                manzana.add(Casitas6OME);
+                manzana.add(Casitas7OME);
+                manzana.add(Casitas8OME);
+                manzana.add(Casitas9OME);
+                manzana.add(Casitas10OME);
+                manzana.add(Casitas11OME);
+                manzana.add(Casitas12OME);
+                manzana.add(Casitas13OME);
+                manzana.add(Casitas14OME);
+                manzana.add(Casitas15OME);
+                manzana.add(Casitas16OME);
+
+                manzana.position.set(130, 0, 200);
+                manzana.castShadow = true;
+
+                var manzanaDos = manzana.clone();
+                manzanaDos.position.set(0, 0, 200);
+                manzanaDos.rotateY(Math.PI);
+
+                var manzanaTres = manzana.clone();
+                manzanaTres.position.set(-130, 0, 200);
+
+                var manzanas = new THREE.Group();
+                manzanas.add(manzana, manzanaDos, manzanaTres);
+
+                for (let index = -3; index < 0; index++) {
+                    var temp = manzanas.clone();
+                    temp.position.set(0, 0, index * 100);
+                    temp.castShadow = true;
+                    scene.add(temp);
+                }
+
+                
+            }
+        }
+        
+            // ELEMENTOS DE CAMARA EN PRIMERA PERSONA---- NO TOCAR
+
+            var raycaster;
+            var blocker = document.getElementById('blocker');
+            var instructions = document.getElementById('instructions');
+            // https://www.html5rocks.com/en/tutorials/pointerlock/intro/
+            var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+            if (havePointerLock) {
+                var element = document.body;
+                var pointerlockchange = function (event) {
+                    if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
+                        controlsEnabled = true;
+                        controls.enabled = true;
+                        blocker.style.display = 'none';
+                    } else {
+                        controls.enabled = false;
+                        blocker.style.display = '-webkit-box';
+                        blocker.style.display = '-moz-box';
+                        blocker.style.display = 'box';
+                        instructions.style.display = '';
+                    }
+                };
+                var pointerlockerror = function (event) {
+                    instructions.style.display = '';
+                };
+                // Hook pointer lock state change events
+                document.addEventListener('pointerlockchange', pointerlockchange, false);
+                document.addEventListener('mozpointerlockchange', pointerlockchange, false);
+                document.addEventListener('webkitpointerlockchange', pointerlockchange, false);
+                document.addEventListener('pointerlockerror', pointerlockerror, false);
+                document.addEventListener('mozpointerlockerror', pointerlockerror, false);
+                document.addEventListener('webkitpointerlockerror', pointerlockerror, false);
+                instructions.addEventListener('click', function (event) {
+                    instructions.style.display = 'none';
+                    // Ask the browser to lock the pointer
+                    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+                    if (/Firefox/i.test(navigator.userAgent)) {
+                        var fullscreenchange = function (event) {
+                            if (document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element) {
+                                document.removeEventListener('fullscreenchange', fullscreenchange);
+                                document.removeEventListener('mozfullscreenchange', fullscreenchange);
+                                element.requestPointerLock();
+                            }
+                        };
+                        document.addEventListener('fullscreenchange', fullscreenchange, false);
+                        document.addEventListener('mozfullscreenchange', fullscreenchange, false);
+                        element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+                        element.requestFullscreen();
+                    } else {
+                        element.requestPointerLock();
+                    }
+                }, false);
+            } else {
+                instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+            }
+
+            var controlsEnabled = false;
+            var moveForward = false;
+            var moveBackward = false;
+            var moveLeft = false;
+            var moveRight = false;
+            var canJump = false;
+            var prevTime = performance.now();
+            var velocity = new THREE.Vector3();
+            var direction = new THREE.Vector3();
+            var plano, raycast, mousePosX, mousePosY, mousePos;
+            var interseccion, objetos = [], objetoInterseccion;
+            // ---------------------------------------------------------------------
+
+		var scene, aspect, camera, renderer, controls;
+        var ARBOLITOME2,ARBOLITOME3,ARBOLITOME4,ARBOLITOME5,ARBOLITOME6,ARBOLITOME7,ARBOLITOME8;
+        var keyboard = {};
+        var player = { height:3, speed:0.1, turnSpeed:Math.PI*0.02 };
+        var USE_WIREFRAME = false;
+        var upArrow = false;
+        var downArrow = false;
+        var leftArrow = false;
+        var rightArrow = false;
+        var objects = [];
+
+        var insetHeight, insetWidth;
+        var origin = new THREE.Vector3(0, 0, 0);
+        var sphere, playerX, playerZ;
+		init();
+		animate();
+		function init(){
+			//INICIALIZACIÓN
+	        scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x30B0FF);
+	        aspect = window.innerWidth / window.innerHeight;
+            camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000);
+            cameraOrtho = new THREE.OrthographicCamera(- 100, 100, 100, -100, 0.1, 100);
+            cameraOrtho.lookAt( origin)
+
+
+	        renderer = new THREE.WebGLRenderer({ antialias: true});
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.enabled = true;
+
+	        document.body.appendChild( renderer.domElement );
+			controls = new THREE.PointerLockControls(camera);
+            scene.add(controls.getObject());
+
+            var onKeyDown = function (event) {
+                switch (event.keyCode) {
+                    case 38: // up
+                    case 87: // w
+                        moveForward = true;
+                        break;
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = true; break;
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = true;
+                        break;
+                    case 39: // right
+                    case 68: // d
+                        moveRight = true;
+                        break;
+                    case 32: // space
+                        if (canJump === true) velocity.y += 200;
+                        canJump = false;
+                        break;
+                }
+            };
+            var onKeyUp = function (event) {
+                switch (event.keyCode) {
+                    case 38: // up
+                    case 87: // w
+                        moveForward = false;
+                        break;
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = false;
+                        break;
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = false;
+                        break;
+                    case 39: // right
+                    case 68: // d
+                        moveRight = false;
+                        break;
+                }
+            };
+            document.addEventListener('keydown', onKeyDown, false);
+            document.addEventListener('keyup', onKeyUp, false);
+            raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
+            raycast = new THREE.Raycaster();
+            //IMPORTANTE
+			controls.enableKeys = false;
+            
+			//ELEMENTOS COMUNES
+			var size = 100;
+			var arrowSize = 1;
+			var divisions = size;
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+            var z = new THREE.Vector3( 0, 0, 1 );
+            var color = new THREE.Color( 0x333333 );
+            var colorR = new THREE.Color( 0xAA3333 );
+            var colorG = new THREE.Color( 0x33AA33 );
+            var colorB = new THREE.Color( 0x333366 );
+			
+            
+            
+            //CREAR ILUMINACIÓN
+            const light = new THREE.SpotLight(0xffffff);
+            light.position.set(300, 200, 300);
+            light.castShadow = true;
+            scene.add(light);
+            const light2 = new THREE.SpotLight(0xffffff);
+            light2.position.set(300, 200, -300);
+            light2.castShadow = true;
+            scene.add(light2);
+
+            var light3 = new THREE.AmbientLight(0xcccccc);
+            scene.add(light3);
+
+            
+            
+            
+            // punto de hubicacion
+            const geometryPoint = new THREE.PlaneGeometry(20, 20, 32);
+            const materialPoint = new THREE.MeshBasicMaterial({ color: 'red' });
+            sphere = new THREE.Mesh(geometryPoint, materialPoint);
+            sphere.rotateX(-Math.PI / 2);
+            scene.add(sphere);
+            
+            //CAMARAS
+            camera.position.set(0, player.height, 200);
+            camera.lookAt(new THREE.Vector3(0,player.height,0));
+            
+
+            
+            cameraOrtho.position.x = 0;
+            cameraOrtho.position.y = 100;
+            cameraOrtho.position.z = 0;			
+            
+            // ------------------------------
+            Figuras.Edificios();
+
+            for (var i = 0; i <370; i+=30){
+                Figuras.arbolitosOme(180-i, -180);
+                Figuras.arbolitosOme(-180+i, 180);
+            }
+            Figuras.señalDeTransito(170, -170, false); // el tercer parametro es un boleano, verdadero rota 90° y false no rota
+            Figuras.señalDeTransito(-170, -170, false); 
+            Figuras.señalDeTransito(-15, -170, false);    
+
+            Figuras.señalDeTransito(15, 170, false);             
+            Figuras.señalDeTransito(-170, 170, false);             
+            Figuras.señalDeTransito(170, 170, false);             
+            
+
+
+            
+
+            
+            animate();
+	        document.body.appendChild(renderer.domElement);
+	
+            window.addEventListener('resize', onWindowResize, false);
+            onWindowResize();
+             
+            
+		}
+        function onWindowResize() {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+
+                insetWidth = window.innerHeight / 4;
+                insetHeight = window.innerHeight / 4;
+
+                cameraOrtho.aspect = insetWidth / insetHeight;
+                cameraOrtho.updateProjectionMatrix();
+
+            }
+        function animate(){
+            
+            // console.log(camera.position);
+            
+            requestAnimationFrame(animate);
+            playerX=camera.position.x;
+            playerZ=camera.position.z;
+            sphere.position.set(playerX, 90, playerZ);
+            
+
+            cameraOrtho.position.set(playerX, 100, playerZ);
+            cameraOrtho.lookAt(playerX, 0, playerZ);
+            // console.log(playerX);
+            if (controlsEnabled) {
+                raycaster.ray.origin.copy(controls.getObject().position);
+                raycaster.ray.origin.y -= 10;
+                
+                var intersections = raycaster.intersectObjects(objects);
+                var onObject = intersections.length > 0;
+                var isOnObject = intersections.length > 0;
+                var time = performance.now();
+                var delta = (time - prevTime) / 1000;
+                
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+                velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+                
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize(); // this ensures consistent movements in all directions
+                
+                if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+                
+                if (onObject === true) {
+                    velocity.y = Math.max(0, velocity.y);
+                    canJump = true;
+                }
+                
+                controls.moveRight(- velocity.x * delta);
+                controls.moveForward(- velocity.z * delta);
+                
+                controls.getObject().position.y += (velocity.y * delta); // new behavior
+                
+                if (controls.getObject().position.y < 10) {
+                    velocity.y = 0;
+                    controls.getObject().position.y = 10;
+                    canJump = true;
+                }
+                prevTime = time;
+            }
+            
+            
+            // console.log(sphere.position);
+            renderer.setClearColor(0x000000);
+            
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+
+            renderer.render(scene, camera);
+
+            renderer.setClearColor(0x333333);
+
+            renderer.clearDepth();
+
+            renderer.setScissorTest(true);
+
+            renderer.setScissor(16, window.innerHeight - insetHeight - 16, insetWidth, insetHeight);
+            renderer.setViewport(16, window.innerHeight - insetHeight - 16, insetWidth, insetHeight);
+
+            renderer.render(scene, cameraOrtho);
+
+            renderer.setScissorTest(false);	
+		}
+		
+		
+	function keyDown(event){
+	keyboard[event.keyCode] = true;
+     }
+
+    function keyUp(event){
+	keyboard[event.keyCode] = false;
+     }
+
+    document.addEventListener('keydown', keyDown);
+    document.addEventListener('keyup', keyUp);
+        
+    function render(){ 
+        
+		    renderer.setViewport( 2*(w/3), 2*(h/3), w/3, h/3 );
+            renderer.setScissor( 2*(w/3), 2*(h/3), w/3, h/3 );
+            renderer.setScissorTest( true );
+            renderer.render( scene, cameranfs );
+			
+			
+            renderer.setViewport( 0, 0, w, h );
+            renderer.setScissor( 0, 0, w, h );
+            renderer.setScissorTest( true );       
+            console.log(camera.position);     
+           renderer.reder(scene, camera);
+
+           
+            
+            
+            
+		}
+    </script>
+  </body>
+</html>
